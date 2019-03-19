@@ -7,37 +7,105 @@ Created on Mon Mar 18 17:46:30 2019
 
 from anytree import Node, RenderTree
 
-## 가능하면 아래처럼 node set list를 하나 만들어서 관리해주는 것이 편함. 
-all_node_set = []
+str1 = "aem"
+str2 = "adc"
+m = len(str1)
+n = len(str2)
 
-## 새로운 변수를 추가해서 넣어줘도 상관없음. 
-## 단 하나의 어떤 node에 data가 있을 경우 아래 모든 노드에서도 data를 넣어주어야 함
-root = Node("root", data=0)
+def GenerateItemHierarchyTree():
+    item_hierarchy_tree = []
+    root = Node("root")
+    item_hierarchy_tree.append(root) 
+    for i in range(0,3):
+        new_node = Node(f'C{i+1}', parent=root)
+        item_hierarchy_tree.append(new_node)
+    item_hierarchy_tree.append(Node("C4", parent=root.children[0]))
+    item_hierarchy_tree.append(Node("a", parent=root.children[0].children[0]))
+    item_hierarchy_tree.append(Node("b", parent=root.children[0].children[0]))
+    item_hierarchy_tree.append(Node("C5", parent=root.children[0]))
+    item_hierarchy_tree.append(Node("C8", parent=root.children[0].children[1]))
+    item_hierarchy_tree.append(Node("f", parent=root.children[0].children[1]))
+    item_hierarchy_tree.append(Node("c", parent= root.children[0].children[1].children[0]))
+    item_hierarchy_tree.append(Node("C10", parent=root.children[0].children[1].children[0]))
+    item_hierarchy_tree.append(Node("d", parent= root.children[0].children[1].children[0].children[1]))
+    item_hierarchy_tree.append(Node("e", parent=root.children[0].children[1].children[0].children[1]))
+    item_hierarchy_tree.append(Node("g", parent=root.children[1]))
+    item_hierarchy_tree.append(Node("h", parent=root.children[1]))
+    item_hierarchy_tree.append(Node("C6", parent=root.children[2]))
+    item_hierarchy_tree.append(Node("C7", parent=root.children[2]))
+    item_hierarchy_tree.append(Node("i", parent=root.children[2].children[0]))
+    item_hierarchy_tree.append(Node("j", parent=root.children[2].children[0]))
+    item_hierarchy_tree.append(Node("k", parent=root.children[2].children[1]))
+    item_hierarchy_tree.append(Node("C9", parent=root.children[2].children[1]))
+    item_hierarchy_tree.append(Node("C11", parent= root.children[2].children[1].children[1]))
+    item_hierarchy_tree.append(Node("n", parent=root.children[2].children[1].children[1]))
+    item_hierarchy_tree.append(Node("l", parent= root.children[2].children[1].children[1].children[0]))
+    item_hierarchy_tree.append(Node("m", parent=root.children[2].children[1].children[1].children[0]))
+    return item_hierarchy_tree, root
 
-all_node_set.append(root)
+def PrintItemHierarchyTree(itmeHierarchyTree, root):
+    print("=="*30)
+    for row in RenderTree(root):
+        pre, fill, node = row
+        print(f"{pre}{node.name}")
+    print("=="*30)
 
-for i in range(0, 3):
-    ## root.children은 기본적으로 tuple구조이며, 따라서 append등으로 새로운 값을 넣어줄 수 없음
-    ## 대신 아래처럼 새로운 node를 만들고, parent를 지정해주면 알아서 연결됨 
-    new_node = Node(f'child_{i}', parent=root, data=0)
-    ## child가 추가되면 data를 변경하도록 세팅 
-    root.data+=1
-    all_node_set.append(new_node)
-Node("child_child_1", parent=root.children[0], data=0)
+def LevenshteinDistance(str1, str2, m , n): #Recursive
+    if m==0: 
+        return n 
+    if n==0: 
+        return m 
 
-print("=="*20)
-## text상에서, tree를 예쁘게 볼 수 있음. 
-for row in RenderTree(root):
-    pre, fill, node = row
-    print(f"{pre}{node.name}, data: {node.data}")
-print("=="*20)
-## 기본적인 tree method를 지원
-print(f"children: { [c.name for c in root.children] }")
-print(f"parent: {root.children[0].parent}")
-print(f"is_root: {root.is_root}")
-print(f"is_leaf: {root.is_leaf}")
-## path ==> root부터 target_Node까지의 길을 말함. 
-target_node = root.children[0].children[0]
-print(f"path: {target_node.path}")
-print(f"ancestors: {target_node.ancestors}")
-print("=="*20)
+    if str1[m-1]==str2[n-1]: 
+        cost = 0
+    else:
+        cost = 1    
+
+    return min(LevenshteinDistance(str1, str2, m, n-1) + 1,    # Insert 
+                   LevenshteinDistance(str1, str2, m-1, n) + 1,    # Remove 
+                   LevenshteinDistance(str1, str2, m-1, n-1) + cost)    # Replace 
+
+def editDistDP(str1, str2, m, n):  #Dynamic Programming
+    # Create a table to store results of subproblems 
+    dp = [[0 for x in range(n+1)] for x in range(m+1)] 
+  
+    # Fill d[][] in bottom up manner 
+    for i in range(m+1): 
+        for j in range(n+1): 
+  
+            # If first string is empty, only option is to 
+            # insert all characters of second string 
+            if i == 0: 
+                dp[i][j] = j    # Min. operations = j 
+  
+            # If second string is empty, only option is to 
+            # remove all characters of second string 
+            elif j == 0: 
+                dp[i][j] = i    # Min. operations = i 
+  
+            # If last characters are same, ignore last char 
+            # and recur for remaining string 
+            elif str1[i-1] == str2[j-1]: 
+                dp[i][j] = dp[i-1][j-1] 
+  
+            # If last character are different, consider all 
+            # possibilities and find minimum 
+            else: 
+                dp[i][j] = 1 + min(dp[i][j-1],        # Insert 
+                                   dp[i-1][j],        # Remove 
+                                   dp[i-1][j-1])    # Replace 
+  
+    return dp[m][n], dp 
+
+def ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2):
+    maxlen = max(len(str1), len(str2))
+    similarity = 1-LevenshteinDist/maxlen
+    return similarity
+
+if __name__ == '__main__':
+    itmeHierarchyTree, root = GenerateItemHierarchyTree()
+    PrintItemHierarchyTree(itmeHierarchyTree, root)
+    LevenshteinDist,dp = editDistDP(str1, str2, m, n)
+    LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
+
+    
