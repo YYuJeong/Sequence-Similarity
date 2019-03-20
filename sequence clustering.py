@@ -9,12 +9,12 @@ from anytree import Node, RenderTree
 
 str1 = "aem"
 str2 = "adc"
-m = len(str1)
-n = len(str2)
+str1Len = len(str1)
+str2Len = len(str2)
 
 def GenerateItemHierarchyTree():
     item_hierarchy_tree = []
-    root = Node("root")
+    root = Node("R")
     item_hierarchy_tree.append(root) 
     for i in range(0,3):
         new_node = Node(f'C{i+1}', parent=root)
@@ -50,62 +50,119 @@ def PrintItemHierarchyTree(itmeHierarchyTree, root):
         print(f"{pre}{node.name}")
     print("=="*30)
 
-def LevenshteinDistance(str1, str2, m , n): #Recursive
-    if m==0: 
-        return n 
-    if n==0: 
-        return m 
+def LevenshteinDistance(str1, str2, str1Len , str2Len): #Recursive
+    if str1Len == 0: 
+        return str2Len 
+    if str2Len == 0: 
+        return str1Len 
 
-    if str1[m-1]==str2[n-1]: 
+    if str1[str1Len-1]==str2[str2Len-1]: 
         cost = 0
     else:
         cost = 1    
 
-    return min(LevenshteinDistance(str1, str2, m, n-1) + 1,    # Insert 
-                   LevenshteinDistance(str1, str2, m-1, n) + 1,    # Remove 
-                   LevenshteinDistance(str1, str2, m-1, n-1) + cost)    # Replace 
+    return min(LevenshteinDistance(str1, str2, str1Len, str2Len-1) + 1,    # Insert 
+                   LevenshteinDistance(str1, str2, str1Len-1, str2Len) + 1,    # Remove 
+                   LevenshteinDistance(str1, str2, str1Len-1, str2Len-1) + cost)    # Replace 
 
-def editDistDP(str1, str2, m, n):  #Dynamic Programming
-    # Create a table to store results of subproblems 
-    dp = [[0 for x in range(n+1)] for x in range(m+1)] 
-  
-    # Fill d[][] in bottom up manner 
-    for i in range(m+1): 
-        for j in range(n+1): 
-  
-            # If first string is empty, only option is to 
-            # insert all characters of second string 
+def editDistDP(str1, str2):  #Dynamic Programming 
+    str1Len = len(str1)
+    str2Len = len(str2)
+    matrix = [[0 for x in range(str2Len + 1)] for x in range(str1Len + 1)] 
+    for i in range(str1Len + 1): 
+        for j in range(str2Len + 1): 
             if i == 0: 
-                dp[i][j] = j    # Min. operations = j 
-  
-            # If second string is empty, only option is to 
-            # remove all characters of second string 
+                matrix[i][j] = j    # Min. operations = j 
             elif j == 0: 
-                dp[i][j] = i    # Min. operations = i 
-  
-            # If last characters are same, ignore last char 
-            # and recur for remaining string 
+                matrix[i][j] = i    # Min. operations = i 
             elif str1[i-1] == str2[j-1]: 
-                dp[i][j] = dp[i-1][j-1] 
-  
-            # If last character are different, consider all 
-            # possibilities and find minimum 
+                matrix[i][j] = matrix[i-1][j-1] 
             else: 
-                dp[i][j] = 1 + min(dp[i][j-1],        # Insert 
-                                   dp[i-1][j],        # Remove 
-                                   dp[i-1][j-1])    # Replace 
-  
-    return dp[m][n], dp 
+                matrix[i][j] = 1 + min(matrix[i][j-1],        # Insert 
+                                   matrix[i-1][j],        # Remove 
+                                   matrix[i-1][j-1])    # Replace   
+    return matrix[str1Len][str2Len], matrix 
+
+def NewLevenshteinDistance(str1, str2, itmeHierarchyTree):
+    str1Len = len(str1)
+    str2Len = len(str2)
+    matrix = [[0 for x in range(str2Len + 1)] for x in range(str1Len + 1)]   
+    for i in range(str1Len + 1): 
+        for j in range(str2Len + 1): 
+            if i == 0: 
+                matrix[i][j] = j    
+            elif j == 0: 
+                matrix[i][j] = i    
+            else: # Add Hierarchy Tree 
+                if str1[i-1]==str2[j-1]: 
+                    cost = 0
+                else:
+                    cost = ComputeDiagonalCost(matrix, i, j, itmeHierarchyTree)   
+                matrix[i][j] = min(matrix[i][j-1] + 1,        # Insert 
+                                   matrix[i-1][j] + 1,        # Remove 
+                                   matrix[i-1][j-1] + cost)    # Replace   
+    return matrix[str1Len][str2Len], matrix 
+
+def ComputeDiagonalCost(matrix, i, j, itmeHierarchyTree):
+
+    return cost
+
 
 def ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2):
     maxlen = max(len(str1), len(str2))
-    similarity = 1-LevenshteinDist/maxlen
-    return similarity
+    similarity = 1 - LevenshteinDist/maxlen
+    return round(similarity, 3)
+
+def PrintMatrix(matrix, str1Len, str2Len):
+    print("    -", end=" ")
+    for i in range(str2Len):
+        print(str2[i], end=" ")
+    print(" ")
+    for i in range(str1Len + 1):
+        if i > 0:
+            print(str1[i-1], end=" ")
+        else:
+            print("-", end=" ")
+        print("[", end=" ")
+        for j in range(str2Len + 1):
+            print(matrix[i][j], end=" ")
+        print("]")
+    print("")
 
 if __name__ == '__main__':
     itmeHierarchyTree, root = GenerateItemHierarchyTree()
+    print("itmeHierarchyTree: ")
+    print(itmeHierarchyTree)
+    print("root", root)
     PrintItemHierarchyTree(itmeHierarchyTree, root)
-    LevenshteinDist,dp = editDistDP(str1, str2, m, n)
+    LevenshteinDist, matrix = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
+    print("< Original Distance Measure >")
+    PrintMatrix(matrix, str1Len, str2Len)
+    print("LevenshteinDistance: ", LevenshteinDist)
+    print("LevenshteinSimilarity: ", LevenshteinSim)
+
+    print("=="*30)
+    print("< New Distance Measure >")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     
