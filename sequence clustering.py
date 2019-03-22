@@ -5,7 +5,7 @@ Created on Mon Mar 18 17:46:30 2019
 @author: YuJeong
 """
 
-from anytree import Node, RenderTree
+from anytree import Node, RenderTree, findall, util
 
 str1 = "aem"
 str2 = "adc"
@@ -16,31 +16,55 @@ def GenerateItemHierarchyTree():
     item_hierarchy_tree = []
     root = Node("R")
     item_hierarchy_tree.append(root) 
-    for i in range(0,3):
-        new_node = Node(f'C{i+1}', parent=root)
-        item_hierarchy_tree.append(new_node)
-    item_hierarchy_tree.append(Node("C4", parent=root.children[0]))
-    item_hierarchy_tree.append(Node("a", parent=root.children[0].children[0]))
-    item_hierarchy_tree.append(Node("b", parent=root.children[0].children[0]))
-    item_hierarchy_tree.append(Node("C5", parent=root.children[0]))
-    item_hierarchy_tree.append(Node("C8", parent=root.children[0].children[1]))
-    item_hierarchy_tree.append(Node("f", parent=root.children[0].children[1]))
-    item_hierarchy_tree.append(Node("c", parent= root.children[0].children[1].children[0]))
-    item_hierarchy_tree.append(Node("C10", parent=root.children[0].children[1].children[0]))
-    item_hierarchy_tree.append(Node("d", parent= root.children[0].children[1].children[0].children[1]))
-    item_hierarchy_tree.append(Node("e", parent=root.children[0].children[1].children[0].children[1]))
-    item_hierarchy_tree.append(Node("g", parent=root.children[1]))
-    item_hierarchy_tree.append(Node("h", parent=root.children[1]))
-    item_hierarchy_tree.append(Node("C6", parent=root.children[2]))
-    item_hierarchy_tree.append(Node("C7", parent=root.children[2]))
-    item_hierarchy_tree.append(Node("i", parent=root.children[2].children[0]))
-    item_hierarchy_tree.append(Node("j", parent=root.children[2].children[0]))
-    item_hierarchy_tree.append(Node("k", parent=root.children[2].children[1]))
-    item_hierarchy_tree.append(Node("C9", parent=root.children[2].children[1]))
-    item_hierarchy_tree.append(Node("C11", parent= root.children[2].children[1].children[1]))
-    item_hierarchy_tree.append(Node("n", parent=root.children[2].children[1].children[1]))
-    item_hierarchy_tree.append(Node("l", parent= root.children[2].children[1].children[1].children[0]))
-    item_hierarchy_tree.append(Node("m", parent=root.children[2].children[1].children[1].children[0]))
+    C1 = Node("C1", parent=root)
+    C2 = Node("C2", parent=root)
+    C3 = Node("C3", parent=root)
+    C4 = Node("C4", parent=C1)
+    C5 = Node("C5", parent=C1)
+    g = Node("g", parent=C2)
+    h = Node("h", parent=C2)
+    C6 = Node("C6", parent=C3)
+    C7 = Node("C7", parent=C3)
+    a = Node("a", parent=C4)
+    b = Node("b", parent=C4)
+    C8 = Node("C8", parent=C5)
+    f = Node("f", parent=C5)
+    i = Node("i", parent=C6)
+    j = Node("j", parent=C6)
+    k = Node("k", parent=C7)
+    C9 = Node("C9", parent=C7)
+    c = Node("c", parent=C8)
+    C10 = Node("C10", parent=C8)
+    C11 = Node("C11", parent=C9)
+    n = Node("n", parent=C9)
+    d = Node("d", parent=C10)
+    e = Node("e", parent=C10)
+    l = Node("l", parent=C11)
+    m = Node("m", parent=C11)
+    item_hierarchy_tree.append(C1)
+    item_hierarchy_tree.append(C2)
+    item_hierarchy_tree.append(C3)
+    item_hierarchy_tree.append(C4)
+    item_hierarchy_tree.append(C5)
+    item_hierarchy_tree.append(C6)
+    item_hierarchy_tree.append(C7)
+    item_hierarchy_tree.append(C8)
+    item_hierarchy_tree.append(C9)
+    item_hierarchy_tree.append(C10)
+    item_hierarchy_tree.append(a)
+    item_hierarchy_tree.append(b)
+    item_hierarchy_tree.append(c)
+    item_hierarchy_tree.append(d)
+    item_hierarchy_tree.append(e)
+    item_hierarchy_tree.append(f)
+    item_hierarchy_tree.append(g)
+    item_hierarchy_tree.append(h)
+    item_hierarchy_tree.append(i)
+    item_hierarchy_tree.append(j)
+    item_hierarchy_tree.append(k)
+    item_hierarchy_tree.append(l)
+    item_hierarchy_tree.append(m)
+    item_hierarchy_tree.append(n)
     return item_hierarchy_tree, root
 
 def PrintItemHierarchyTree(itmeHierarchyTree, root):
@@ -107,6 +131,11 @@ def ComputeDiagonalCost(matrix, i, j, itmeHierarchyTree):
 
     return cost
 
+def SearchLongestPath(item_hierarchy_tree):
+    toString = list()
+    for e in item_hierarchy_tree:
+        toString.append(str(e))
+    return toString
 
 def ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2):
     maxlen = max(len(str1), len(str2))
@@ -144,7 +173,8 @@ if __name__ == '__main__':
 
     print("=="*30)
     print("< New Distance Measure >")
-
+    toString = SearchLongestPath(item_hierarchy_tree)
+    
 
 
 
