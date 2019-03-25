@@ -6,11 +6,13 @@ Created on Mon Mar 18 17:46:30 2019
 """
 
 from anytree import Node, RenderTree, findall, util
+import re
 
 str1 = "aem"
 str2 = "adc"
 str1Len = len(str1)
 str2Len = len(str2)
+maxlength = 10
 
 def GenerateItemHierarchyTree():
     item_hierarchy_tree = []
@@ -104,10 +106,10 @@ def editDistDP(str1, str2):  #Dynamic Programming
             else: 
                 matrix[i][j] = 1 + min(matrix[i][j-1],        # Insert 
                                    matrix[i-1][j],        # Remove 
-                                   matrix[i-1][j-1])    # Replace   
+                                   matrix[i-1][j-1])   # Replace  
     return matrix[str1Len][str2Len], matrix 
 
-def NewLevenshteinDistance(str1, str2, itmeHierarchyTree):
+def NewLevenshteinDistance(str1, str2, root):
     str1Len = len(str1)
     str2Len = len(str2)
     matrix = [[0 for x in range(str2Len + 1)] for x in range(str1Len + 1)]   
@@ -121,20 +123,39 @@ def NewLevenshteinDistance(str1, str2, itmeHierarchyTree):
                 if str1[i-1]==str2[j-1]: 
                     cost = 0
                 else:
-                    cost = ComputeDiagonalCost(matrix, i, j, itmeHierarchyTree)   
+                    cost = ComputeDiagonalCost(matrix, i, j, root)
                 matrix[i][j] = min(matrix[i][j-1] + 1,        # Insert 
                                    matrix[i-1][j] + 1,        # Remove 
                                    matrix[i-1][j-1] + cost)    # Replace   
     return matrix[str1Len][str2Len], matrix 
 
-def ComputeDiagonalCost(matrix, i, j, itmeHierarchyTree):
-
+def ComputeDiagonalCost(matrix, i, j, root):
+    if ((matrix[i-1][j] + 1) > matrix[i-1][j-1]) and ((matrix[i][j-1] + 1) > matrix[i-1][j-1]):
+        str1char = findall(root, filter_=lambda node: node.name in (str1[i-1]))
+        str2char = findall(root, filter_=lambda node: node.name in (str2[j-1]))
+        str1char = str(str1char)
+        str2char = str(str2char)
+        str1lst = str1char.split('/')
+        str2lst = str2char.split('/')
+        for l in range(min(len(str1lst), len(str2lst))):
+            if str1lst[l] != str2lst[l]:
+                cmpindex = l
+                break
+        itempath = (len(str1lst)-cmpindex)+(len(str2lst)-cmpindex)
+        cost = round(itempath/maxlength, 3)
+    else:
+        cost = 1
     return cost
 
 def SearchLongestPath(item_hierarchy_tree):
-    toString = list()
+    toContent = list()
     for e in item_hierarchy_tree:
-        toString.append(str(e))
+        toContent.append(str(e))
+    toString = list()
+    for e in toContent:
+        toString.append(e[6:-2])
+    icl=list(set(toString[1]).intersection(set(toString[4])))
+ 
     return toString
 
 def ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2):
@@ -160,9 +181,6 @@ def PrintMatrix(matrix, str1Len, str2Len):
 
 if __name__ == '__main__':
     itmeHierarchyTree, root = GenerateItemHierarchyTree()
-    print("itmeHierarchyTree: ")
-    print(itmeHierarchyTree)
-    print("root", root)
     PrintItemHierarchyTree(itmeHierarchyTree, root)
     LevenshteinDist, matrix = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
@@ -170,13 +188,14 @@ if __name__ == '__main__':
     PrintMatrix(matrix, str1Len, str2Len)
     print("LevenshteinDistance: ", LevenshteinDist)
     print("LevenshteinSimilarity: ", LevenshteinSim)
-
     print("=="*30)
     print("< New Distance Measure >")
-    toString = SearchLongestPath(item_hierarchy_tree)
-    
-
-
+    toString = SearchLongestPath(itmeHierarchyTree)
+    NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(str1, str2, root)
+    PrintMatrix(Newmatrix, str1Len, str2Len)
+    NewLevenshteinSim = ComputeLevenshteinSimilarity(NewLevenshteinDist, str1, str2)
+    print("LevenshteinDistance: ", NewLevenshteinDist)
+    print("LevenshteinSimilarity: ", NewLevenshteinSim)
 
 
 
