@@ -6,70 +6,26 @@ Created on Mon Mar 18 17:46:30 2019
 """
 
 from anytree import Node, RenderTree, findall, util
-import re
+
 
 str1 = "aem"
 str2 = "adc"
 str1Len = len(str1)
 str2Len = len(str2)
-maxlength = 10
+
+def cmp(a, b):
+    return (a > b) - (a < b)
 
 def GenerateItemHierarchyTree():
-    item_hierarchy_tree = []
-    root = Node("R")
-    item_hierarchy_tree.append(root) 
-    C1 = Node("C1", parent=root)
-    C2 = Node("C2", parent=root)
-    C3 = Node("C3", parent=root)
-    C4 = Node("C4", parent=C1)
-    C5 = Node("C5", parent=C1)
-    g = Node("g", parent=C2)
-    h = Node("h", parent=C2)
-    C6 = Node("C6", parent=C3)
-    C7 = Node("C7", parent=C3)
-    a = Node("a", parent=C4)
-    b = Node("b", parent=C4)
-    C8 = Node("C8", parent=C5)
-    f = Node("f", parent=C5)
-    i = Node("i", parent=C6)
-    j = Node("j", parent=C6)
-    k = Node("k", parent=C7)
-    C9 = Node("C9", parent=C7)
-    c = Node("c", parent=C8)
-    C10 = Node("C10", parent=C8)
-    C11 = Node("C11", parent=C9)
-    n = Node("n", parent=C9)
-    d = Node("d", parent=C10)
-    e = Node("e", parent=C10)
-    l = Node("l", parent=C11)
-    m = Node("m", parent=C11)
-    item_hierarchy_tree.append(C1)
-    item_hierarchy_tree.append(C2)
-    item_hierarchy_tree.append(C3)
-    item_hierarchy_tree.append(C4)
-    item_hierarchy_tree.append(C5)
-    item_hierarchy_tree.append(C6)
-    item_hierarchy_tree.append(C7)
-    item_hierarchy_tree.append(C8)
-    item_hierarchy_tree.append(C9)
-    item_hierarchy_tree.append(C10)
-    item_hierarchy_tree.append(a)
-    item_hierarchy_tree.append(b)
-    item_hierarchy_tree.append(c)
-    item_hierarchy_tree.append(d)
-    item_hierarchy_tree.append(e)
-    item_hierarchy_tree.append(f)
-    item_hierarchy_tree.append(g)
-    item_hierarchy_tree.append(h)
-    item_hierarchy_tree.append(i)
-    item_hierarchy_tree.append(j)
-    item_hierarchy_tree.append(k)
-    item_hierarchy_tree.append(l)
-    item_hierarchy_tree.append(m)
-    item_hierarchy_tree.append(n)
-    return item_hierarchy_tree, root
+    while 1:
+        nodeName, nodeData, nodeParent = input("카테고리/ 데이터/ 부모노드: ").split()
+        if nodeName == "Exit":
+            break
+        globals()[nodeName] =  Node(nodeName, parent = globals()[nodeParent], data = nodeData)
+        item_hierarchy_tree.append(globals()[nodeName])
+    return root
 
-def PrintItemHierarchyTree(itmeHierarchyTree, root):
+def PrintItemHierarchyTree(root):
     print("=="*30)
     for row in RenderTree(root):
         pre, fill, node = row
@@ -81,12 +37,10 @@ def LevenshteinDistance(str1, str2, str1Len , str2Len): #Recursive
         return str2Len 
     if str2Len == 0: 
         return str1Len 
-
     if str1[str1Len-1]==str2[str2Len-1]: 
         cost = 0
     else:
         cost = 1    
-
     return min(LevenshteinDistance(str1, str2, str1Len, str2Len-1) + 1,    # Insert 
                    LevenshteinDistance(str1, str2, str1Len-1, str2Len) + 1,    # Remove 
                    LevenshteinDistance(str1, str2, str1Len-1, str2Len-1) + cost)    # Replace 
@@ -130,6 +84,7 @@ def NewLevenshteinDistance(str1, str2, root):
     return matrix[str1Len][str2Len], matrix 
 
 def ComputeDiagonalCost(matrix, i, j, root):
+    maxlength = SearchLongestPath(root)
     if ((matrix[i-1][j] + 1) > matrix[i-1][j-1]) and ((matrix[i][j-1] + 1) > matrix[i-1][j-1]):
         str1char = findall(root, filter_=lambda node: node.name in (str1[i-1]))
         str2char = findall(root, filter_=lambda node: node.name in (str2[j-1]))
@@ -147,16 +102,27 @@ def ComputeDiagonalCost(matrix, i, j, root):
         cost = 1
     return cost
 
-def SearchLongestPath(item_hierarchy_tree):
+def SearchLongestPath(root):
     toContent = list()
-    for e in item_hierarchy_tree:
-        toContent.append(str(e))
+    for ee in root.leaves:
+        toContent.append(str(ee))
     toString = list()
-    for e in toContent:
-        toString.append(e[6:-2])
-    icl=list(set(toString[1]).intersection(set(toString[4])))
- 
-    return toString
+    for ee in toContent:
+        toString.append(ee[6:-2])
+    eachNode = list()
+    for ee in toString:
+        eachNode.append(ee.split('/'))
+    longestPath = list()
+    for ee in eachNode:
+        longestPath.append(ee[:-1])
+    dupliPath = list(set([tuple(set(item)) for item in longestPath]))
+    pathLen = list()
+    for ee in dupliPath:
+        pathLen.append(len(ee)-1)
+    pathLen.sort(reverse=True)
+    maxlength = pathLen[0] + pathLen[1]
+    return maxlength
+
 
 def ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2):
     maxlen = max(len(str1), len(str2))
@@ -164,9 +130,9 @@ def ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2):
     return round(similarity, 3)
 
 def PrintMatrix(matrix, str1Len, str2Len):
-    print("    -", end=" ")
+    print('{:4s}'.format('    -   '), end=" ")
     for i in range(str2Len):
-        print(str2[i], end=" ")
+        print('{:4s}'.format(str2[i]), end=" ")
     print(" ")
     for i in range(str1Len + 1):
         if i > 0:
@@ -175,13 +141,16 @@ def PrintMatrix(matrix, str1Len, str2Len):
             print("-", end=" ")
         print("[", end=" ")
         for j in range(str2Len + 1):
-            print(matrix[i][j], end=" ")
+          print('{:4s}'.format(str(matrix[i][j])), end=" ")
         print("]")
     print("")
 
 if __name__ == '__main__':
-    itmeHierarchyTree, root = GenerateItemHierarchyTree()
-    PrintItemHierarchyTree(itmeHierarchyTree, root)
+    item_hierarchy_tree = []
+    root = Node("R", data = "All Item")
+    item_hierarchy_tree.append(root) 
+    root = GenerateItemHierarchyTree()
+    PrintItemHierarchyTree(root)
     LevenshteinDist, matrix = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
     print("< Original Distance Measure >")
@@ -190,7 +159,6 @@ if __name__ == '__main__':
     print("LevenshteinSimilarity: ", LevenshteinSim)
     print("=="*30)
     print("< New Distance Measure >")
-    toString = SearchLongestPath(itmeHierarchyTree)
     NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(str1, str2, root)
     PrintMatrix(Newmatrix, str1Len, str2Len)
     NewLevenshteinSim = ComputeLevenshteinSimilarity(NewLevenshteinDist, str1, str2)
