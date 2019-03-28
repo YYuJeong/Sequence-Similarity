@@ -8,8 +8,8 @@ Created on Mon Mar 18 17:46:30 2019
 from anytree import Node, RenderTree, findall, util
 
 
-str1 = "aem"
-str2 = "adc"
+str1 = "aemlb"
+str2 = "adcnl"
 str1Len = len(str1)
 str2Len = len(str2)
 
@@ -29,10 +29,10 @@ def PrintItemHierarchyTree(root):
     print("=="*30)
     for row in RenderTree(root):
         pre, fill, node = row
-        print(f"{pre}{node.name}")
+        print(f"{pre}{node.name}, data: {node.data}")
     print("=="*30)
 
-def LevenshteinDistance(str1, str2, str1Len , str2Len): #Recursive
+def LevenshteinDistance(str1, str2, str1LCen , str2Len): #Recursive
     if str1Len == 0: 
         return str2Len 
     if str2Len == 0: 
@@ -78,9 +78,9 @@ def NewLevenshteinDistance(str1, str2, root):
                     cost = 0
                 else:
                     cost = ComputeDiagonalCost(matrix, i, j, root)
-                matrix[i][j] = min(matrix[i][j-1] + 1,        # Insert 
+                matrix[i][j] = round(min(matrix[i][j-1] + 1,        # Insert 
                                    matrix[i-1][j] + 1,        # Remove 
-                                   matrix[i-1][j-1] + cost)    # Replace   
+                                   matrix[i-1][j-1] + cost), 3)    # Replace   
     return matrix[str1Len][str2Len], matrix 
 
 def ComputeDiagonalCost(matrix, i, j, root):
@@ -146,10 +146,10 @@ def PrintMatrix(matrix, str1Len, str2Len):
     print("")
 
 if __name__ == '__main__':
-    item_hierarchy_tree = []
-    root = Node("R", data = "All Item")
-    item_hierarchy_tree.append(root) 
-    root = GenerateItemHierarchyTree()
+    #item_hierarchy_tree = []
+    #root = Node("R", data = "All Item")
+    #item_hierarchy_tree.append(root) 
+    #root = GenerateItemHierarchyTree()
     PrintItemHierarchyTree(root)
     LevenshteinDist, matrix = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
