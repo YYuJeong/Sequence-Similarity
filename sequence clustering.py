@@ -4,7 +4,7 @@ Created on Mon Mar 18 17:46:30 2019
 
 @author: YuJeong
 """
-
+import csv
 from anytree import Node, RenderTree, findall, util
 
 
@@ -13,16 +13,35 @@ str2 = "adcnl"
 str1Len = len(str1)
 str2Len = len(str2)
 
+def ReadCSV(filename):
+    ff = open(filename, 'r', encoding = 'utf-8')
+    reader = csv.reader(ff)
+    headers = next(reader, None)
+    data = {}
+    for hh in headers:
+        data[hh] = []
+    for row in reader: 
+        for hh, vv in zip(headers, row):
+                data[hh].append(vv)
+    return data
+
+
 def cmp(a, b):
     return (a > b) - (a < b)
 
-def GenerateItemHierarchyTree():
+def GenerateItemHierarchyTree(treeItem):
+    for i in range(len(treeItem['Name'])):
+        globals()[treeItem['Name'][i]] =  Node(treeItem['Name'][i], parent = globals()[treeItem['Parent'][i]], data = treeItem['Data'][i])
+        item_hierarchy_tree.append(globals()[treeItem['Name'][i]])
+    
+    '''
     while 1:
         nodeName, nodeData, nodeParent = input("카테고리/ 데이터/ 부모노드: ").split()
         if nodeName == "Exit":
             break
         globals()[nodeName] =  Node(nodeName, parent = globals()[nodeParent], data = nodeData)
         item_hierarchy_tree.append(globals()[nodeName])
+    '''
     return root
 
 def PrintItemHierarchyTree(root):
@@ -146,25 +165,31 @@ def PrintMatrix(matrix, str1Len, str2Len):
     print("")
 
 if __name__ == '__main__':
-    #item_hierarchy_tree = []
-    #root = Node("R", data = "All Item")
-    #item_hierarchy_tree.append(root) 
-    #root = GenerateItemHierarchyTree()
+    treeItem = ReadCSV('tree.csv')
+    data = ReadCSV('data.csv')
+    
+    item_hierarchy_tree = []    
+    root = Node("R", data = "All Item")
+    item_hierarchy_tree.append(root) 
+    root = GenerateItemHierarchyTree(treeItem)
     PrintItemHierarchyTree(root)
+    
     LevenshteinDist, matrix = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
+    
     print("< Original Distance Measure >")
     PrintMatrix(matrix, str1Len, str2Len)
     print("LevenshteinDistance: ", LevenshteinDist)
     print("LevenshteinSimilarity: ", LevenshteinSim)
     print("=="*30)
+    
     print("< New Distance Measure >")
     NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(str1, str2, root)
     PrintMatrix(Newmatrix, str1Len, str2Len)
     NewLevenshteinSim = ComputeLevenshteinSimilarity(NewLevenshteinDist, str1, str2)
     print("LevenshteinDistance: ", NewLevenshteinDist)
     print("LevenshteinSimilarity: ", NewLevenshteinSim)
-
+    print("=="*30)
 
 
 
