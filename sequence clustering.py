@@ -6,12 +6,16 @@ Created on Mon Mar 18 17:46:30 2019
 """
 import csv
 from anytree import Node, RenderTree, findall, util
+import string
+import random
+import time
 
-
+'''
 str1 = "aemlb"
 str2 = "adcnl"
 str1Len = len(str1)
 str2Len = len(str2)
+'''
 
 def ReadCSV(filename):
     ff = open(filename, 'r', encoding = 'utf-8')
@@ -34,7 +38,7 @@ def GenerateItemHierarchyTree(treeItem):
         globals()[treeItem['Name'][i]] =  Node(treeItem['Name'][i], parent = globals()[treeItem['Parent'][i]], data = treeItem['Data'][i])
         item_hierarchy_tree.append(globals()[treeItem['Name'][i]])
     
-    '''
+    ''' //입력 받아서 트리 생성
     while 1:
         nodeName, nodeData, nodeParent = input("카테고리/ 데이터/ 부모노드: ").split()
         if nodeName == "Exit":
@@ -96,13 +100,13 @@ def NewLevenshteinDistance(str1, str2):
                 if str1[i-1]==str2[j-1]: 
                     cost = 0
                 else:
-                    cost = ComputeDiagonalCost(matrix, i, j, root)
+                    cost = ComputeDiagonalCost(matrix, i, j, str1, str2, root)
                 matrix[i][j] = round(min(matrix[i][j-1] + 1,        # Insert 
                                    matrix[i-1][j] + 1,        # Remove 
                                    matrix[i-1][j-1] + cost), 3)    # Replace   
     return matrix[str1Len][str2Len], matrix 
 
-def ComputeDiagonalCost(matrix, i, j, root):
+def ComputeDiagonalCost(matrix, i, j, str1, str2, root):
     maxlength = SearchLongestPath(root)
     if ((matrix[i-1][j] + 1) > matrix[i-1][j-1]) and ((matrix[i][j-1] + 1) > matrix[i-1][j-1]):
         str1char = findall(root, filter_=lambda node: node.name in (str1[i-1]))
@@ -148,7 +152,9 @@ def ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2):
     similarity = 1 - LevenshteinDist/maxlen
     return round(similarity, 3)
 
-def PrintMatrix(matrix, str1Len, str2Len):
+def PrintMatrix(matrix, str1, str2):
+    str1Len = len(str1)
+    str2Len = len(str2)
     print('{:4s}'.format('    -   '), end=" ")
     for i in range(str2Len):
         print('{:4s}'.format(str2[i]), end=" ")
@@ -163,6 +169,9 @@ def PrintMatrix(matrix, str1Len, str2Len):
           print('{:4s}'.format(str(matrix[i][j])), end=" ")
         print("]")
     print("")
+    
+def generateRandomSequence(size, chars=string.ascii_lowercase):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 if __name__ == '__main__':
     treeItem = ReadCSV('tree.csv')
@@ -173,7 +182,7 @@ if __name__ == '__main__':
     item_hierarchy_tree.append(root) 
     root = GenerateItemHierarchyTree(treeItem)
     PrintItemHierarchyTree(root)
-    
+    '''
     LevenshteinDist, matrix = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
     
@@ -185,20 +194,67 @@ if __name__ == '__main__':
     
     print("< New Distance Measure >")
     NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(str1, str2)
-    PrintMatrix(Newmatrix, str1Len, str2Len)
+    PrintMatrix(Newmatrix, str1, str2)
     NewLevenshteinSim = ComputeLevenshteinSimilarity(NewLevenshteinDist, str1, str2)
     print("LevenshteinDistance: ", NewLevenshteinDist)
     print("LevenshteinSimilarity: ", NewLevenshteinSim)
     print("=="*30)
+    '''
+    sequenceArr1 = []
+    for j in range(1000):
+        sequenceArr1.append(generateRandomSequence(2))
+    for j in range(1000):
+        sequenceArr1.append(generateRandomSequence(3)) 
+    for j in range(1000):
+        sequenceArr1.append(generateRandomSequence(4))
+    for j in range(1000):
+        sequenceArr1.append(generateRandomSequence(5)) 
+    for j in range(1000):
+        sequenceArr1.append(generateRandomSequence(6)) 
+    for j in range(1000):
+        sequenceArr1.append(generateRandomSequence(7)) 
+    for j in range(1000):
+        sequenceArr1.append(generateRandomSequence(8)) 
+    for j in range(1000):
+        sequenceArr1.append(generateRandomSequence(9)) 
+    for j in range(1000):
+        sequenceArr1.append(generateRandomSequence(10))
+    for j in range(1000):
+        sequenceArr1.append(generateRandomSequence(6)) 
+    random.shuffle(sequenceArr1)
 
+    sequenceArr2 = []
+    for j in range(1000):
+        sequenceArr2.append(generateRandomSequence(2))
+    for j in range(1000):
+        sequenceArr2.append(generateRandomSequence(3)) 
+    for j in range(1000):
+        sequenceArr2.append(generateRandomSequence(4))
+    for j in range(1000):
+        sequenceArr2.append(generateRandomSequence(5)) 
+    for j in range(1000):
+        sequenceArr2.append(generateRandomSequence(6)) 
+    for j in range(1000):
+        sequenceArr2.append(generateRandomSequence(7)) 
+    for j in range(1000):
+        sequenceArr2.append(generateRandomSequence(8)) 
+    for j in range(1000):
+        sequenceArr2.append(generateRandomSequence(9)) 
+    for j in range(1000):
+        sequenceArr2.append(generateRandomSequence(10))
+    for j in range(1000):
+        sequenceArr2.append(generateRandomSequence(6)) 
+    random.shuffle(sequenceArr2)
 
-
-
-
-
-
-
-
+    distArr = []
+    print("6000")
+    start_time = time.time() 
+    for i in range(6000):
+        NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(sequenceArr1[i], sequenceArr2[i])
+       # PrintMatrix(Newmatrix, sequenceArr1[i], sequenceArr2[i])
+    
+    print("start_time", start_time) #출력해보면, 시간형식이 사람이 읽기 힘든 일련번호형식입니다.
+    print("--- %s seconds ---" %(time.time() - start_time))
 
 
 
