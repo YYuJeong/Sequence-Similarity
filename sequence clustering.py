@@ -82,7 +82,7 @@ def editDistDP(str1, str2):  #Dynamic Programming
                                    matrix[i-1][j-1])   # Replace  
     return matrix[str1Len][str2Len], matrix 
 
-def NewLevenshteinDistance(str1, str2, root):
+def NewLevenshteinDistance(str1, str2):
     str1Len = len(str1)
     str2Len = len(str2)
     matrix = [[0 for x in range(str2Len + 1)] for x in range(str1Len + 1)]   
@@ -184,7 +184,7 @@ if __name__ == '__main__':
     print("=="*30)
     
     print("< New Distance Measure >")
-    NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(str1, str2, root)
+    NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(str1, str2)
     PrintMatrix(Newmatrix, str1Len, str2Len)
     NewLevenshteinSim = ComputeLevenshteinSimilarity(NewLevenshteinDist, str1, str2)
     print("LevenshteinDistance: ", NewLevenshteinDist)
