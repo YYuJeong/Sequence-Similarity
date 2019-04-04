@@ -246,15 +246,17 @@ if __name__ == '__main__':
         sequenceArr2.append(generateRandomSequence(6)) 
     random.shuffle(sequenceArr2)
 
-    distArr = []
-    print("6000")
-    start_time = time.time() 
-    for i in range(6000):
-        NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(sequenceArr1[i], sequenceArr2[i])
-       # PrintMatrix(Newmatrix, sequenceArr1[i], sequenceArr2[i])
-    
-    print("start_time", start_time) #출력해보면, 시간형식이 사람이 읽기 힘든 일련번호형식입니다.
-    print("--- %s seconds ---" %(time.time() - start_time))
+    resultArr = []
+    for i in range(10):
+        print("i: ", i)
+        print("1000")
+        start_time = time.time() 
+        for i in range(1000):
+            NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(sequenceArr1[i], sequenceArr2[i])
+           # PrintMatrix(Newmatrix, sequenceArr1[i], sequenceArr2[i])
+        print("start_time", start_time) #출력해보면, 시간형식이 사람이 읽기 힘든 일련번호형식입니다.
+        print("--- %s seconds ---" %(time.time() - start_time))
+        resultArr.append(NewLevenshteinDist)
 
 
 
