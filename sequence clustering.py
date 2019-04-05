@@ -10,12 +10,10 @@ import string
 import random
 import time
 
-'''
-str1 = "aemlb"
-str2 = "adcnl"
+str1 = "aegi"
+str2 = "jdai"
 str1Len = len(str1)
 str2Len = len(str2)
-'''
 
 def ReadCSV(filename):
     ff = open(filename, 'r', encoding = 'utf-8')
@@ -174,20 +172,20 @@ def generateRandomSequence(size, chars=string.ascii_lowercase):
     return ''.join(random.choice(chars) for _ in range(size))
 
 if __name__ == '__main__':
-    treeItem = ReadCSV('tree.csv')
-    data = ReadCSV('data.csv')
+    treeItem = ReadCSV('testtree.csv')
+   # data = ReadCSV('data.csv')
     
     item_hierarchy_tree = []    
     root = Node("R", data = "All Item")
     item_hierarchy_tree.append(root) 
     root = GenerateItemHierarchyTree(treeItem)
     PrintItemHierarchyTree(root)
-    '''
+    
     LevenshteinDist, matrix = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
     
     print("< Original Distance Measure >")
-    PrintMatrix(matrix, str1Len, str2Len)
+    PrintMatrix(matrix, str1, str2)
     print("LevenshteinDistance: ", LevenshteinDist)
     print("LevenshteinSimilarity: ", LevenshteinSim)
     print("=="*30)
@@ -199,6 +197,7 @@ if __name__ == '__main__':
     print("LevenshteinDistance: ", NewLevenshteinDist)
     print("LevenshteinSimilarity: ", NewLevenshteinSim)
     print("=="*30)
+    
     '''
     sequenceArr1 = []
     for j in range(1000):
@@ -257,7 +256,7 @@ if __name__ == '__main__':
         print("start_time", start_time) #출력해보면, 시간형식이 사람이 읽기 힘든 일련번호형식입니다.
         print("--- %s seconds ---" %(time.time() - start_time))
         resultArr.append(NewLevenshteinDist)
-
+        '''
 
 
 
