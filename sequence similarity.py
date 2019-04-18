@@ -7,11 +7,10 @@ Created on Mon Mar 18 17:46:30 2019
 import csv
 from anytree import Node, RenderTree, findall, util
 import string
-import random
 import time
 
-str1 = "aegi"
-str2 = "jdai"
+str1 = "egnt"
+str2 = "fhot"
 str1Len = len(str1)
 str2Len = len(str2)
 
@@ -172,7 +171,7 @@ def generateRandomSequence(size, chars=string.ascii_lowercase):
     return ''.join(random.choice(chars) for _ in range(size))
 
 if __name__ == '__main__':
-    treeItem = ReadCSV('testtree.csv')
+    treeItem = ReadCSV('tree.csv')
    # data = ReadCSV('data.csv')
     
     item_hierarchy_tree = []    
