@@ -9,9 +9,13 @@ from anytree import Node, RenderTree, findall, util
 import string
 import time
 import random
+from math import *
+import numpy as np
+import sys
+import matplotlib.pyplot as plt
 
-str1 = "egnt"
-str2 = "fhot"
+str1 = "cehup"
+str2 = "iamtf"
 str1Len = len(str1)
 str2Len = len(str2)
 
@@ -171,6 +175,138 @@ def PrintMatrix(matrix, str1, str2):
 def generateRandomSequence(size, chars=string.ascii_lowercase):
     return ''.join(random.choice(chars) for _ in range(size))
 
+
+
+#######################  Dynamic Time Warping #################################
+def DTW(A, B, window=sys.maxsize, d=lambda x, y: abs(x - y)):
+    A, B = np.array(A), np.array(B)
+    M, N = len(A), len(B)
+    cost = sys.maxsize * np.ones((M, N))
+    cost[0, 0] = d(A[0], B[0])
+    for i in range(1, M):
+        cost[i, 0] = cost[i - 1, 0] + d(A[i], B[0])
+    for j in range(1, N):
+        cost[0, j] = cost[0, j - 1] + d(A[0], B[j])
+    for i in range(1, M):
+        for j in range(max(1, i - window), min(N, i + window)):
+            choices = cost[i - 1, j - 1], cost[i, j - 1], cost[i - 1, j]
+            cost[i, j] = min(choices) + d(A[i], B[j])
+    n, m = N - 1, M - 1
+    path = []
+    while (m, n) != (0, 0):
+        path.append((m, n))
+        m, n = min((m - 1, n), (m, n - 1), (m - 1, n - 1), key=lambda x: cost[x[0], x[1]])
+    path.append((0, 0))
+    return cost[-1, -1], path
+
+
+def DTW_main():
+    A = np.array([1, 1, 2, 2, 2, 3, 3, 3])
+    B = np.array([1, 2, 3])
+    cost, path = DTW(A, B, window = 6)
+    print('Total Distance is ', cost)
+    offset = 6
+    plt.xlim([-1, max(len(A), len(B)) + 1])
+    plt.plot(A)
+    plt.plot(B + offset)
+    for (x1, x2) in path:
+        plt.plot([x1, x2], [A[x1], B[x2] + offset])
+    plt.show()
+
+
+#######################  Needleman-Wunsch #################################
+
+def print_matrix(mat):
+    for i in range(0, len(mat)):
+        print("[", end = "")
+        for j in range(0, len(mat[i])):
+            print(mat[i][j], end = "")
+            if j != len(mat[i]) - 1:
+                print("\t", end = "")
+        print("]\n")
+
+gap_penalty = -1
+match_award = 1
+mismatch_penalty = -1
+
+seq1 = "AAABBBCCC"
+seq2 = "A"
+
+def zeros(rows, cols):
+    retval = []
+    for x in range(rows):
+        retval.append([])
+        for y in range(cols):
+            retval[-1].append(0)
+    return retval
+
+def match_score(alpha, beta):
+    if alpha == beta:
+        return match_award
+    elif alpha == '-' or beta == '-':
+        return gap_penalty
+    else:
+        return mismatch_penalty
+
+def needleman_wunsch(seq1, seq2):
+    n = len(seq1)
+    m = len(seq2)  
+    
+    score = zeros(m+1, n+1)
+    for i in range(0, m + 1):
+        score[i][0] = gap_penalty * i
+    
+    for j in range(0, n + 1):
+        score[0][j] = gap_penalty * j
+    
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            match = score[i - 1][j - 1] + match_score(seq1[j-1], seq2[i-1])
+            delete = score[i - 1][j] + gap_penalty
+            insert = score[i][j - 1] + gap_penalty
+            score[i][j] = max(match, delete, insert)
+    print(np.shape(score))
+    print("NW score: ", score[m][n])
+    return score
+
+def needleman_wunsch_align(score, seq1, seq2):
+    n = len(seq1)
+    m = len(seq2)  
+    align1 = ""
+    align2 = ""
+    i = m
+    j = n
+    score_current = score[i][j]
+    score_diagonal = score[i-1][j-1]
+    score_up = score[i][j-1]
+    score_left = score[i-1][j]
+    if score_current == score_diagonal + match_score(seq1[j-1], seq2[i-1]):
+        align1 += seq1[j-1]
+        align2 += seq2[i-1]
+        i -= 1
+        j -= 1
+    elif score_current == score_up + gap_penalty:
+        align1 += seq1[j-1]
+        align2 += '-'
+        j -= 1
+    elif score_current == score_left + gap_penalty:
+        align1 += '-'
+        align2 += seq2[i-1]
+        i -= 1
+    while j > 0:
+        align1 += seq1[j-1]
+        align2 += '-'
+        j -= 1
+    while i > 0:
+        align1 += '-'
+        align2 += seq2[i-1]
+        i -= 1
+    align1 = align1[::-1]
+    align2 = align2[::-1]
+
+    return(align1, align2)
+
+
 if __name__ == '__main__':
     treeItem = ReadCSV('tree.csv')
    # data = ReadCSV('data.csv')
@@ -198,66 +334,18 @@ if __name__ == '__main__':
     print("LevenshteinSimilarity: ", NewLevenshteinSim)
     print("=="*30)
     
-    '''
-    sequenceArr1 = []
-    for j in range(1000):
-        sequenceArr1.append(generateRandomSequence(2))
-    for j in range(1000):
-        sequenceArr1.append(generateRandomSequence(3)) 
-    for j in range(1000):
-        sequenceArr1.append(generateRandomSequence(4))
-    for j in range(1000):
-        sequenceArr1.append(generateRandomSequence(5)) 
-    for j in range(1000):
-        sequenceArr1.append(generateRandomSequence(6)) 
-    for j in range(1000):
-        sequenceArr1.append(generateRandomSequence(7)) 
-    for j in range(1000):
-        sequenceArr1.append(generateRandomSequence(8)) 
-    for j in range(1000):
-        sequenceArr1.append(generateRandomSequence(9)) 
-    for j in range(1000):
-        sequenceArr1.append(generateRandomSequence(10))
-    for j in range(1000):
-        sequenceArr1.append(generateRandomSequence(6)) 
-    random.shuffle(sequenceArr1)
+    print("< Dynamic Time Warping Measure >")
+    DTW_main()
 
-    sequenceArr2 = []
-    for j in range(1000):
-        sequenceArr2.append(generateRandomSequence(2))
-    for j in range(1000):
-        sequenceArr2.append(generateRandomSequence(3)) 
-    for j in range(1000):
-        sequenceArr2.append(generateRandomSequence(4))
-    for j in range(1000):
-        sequenceArr2.append(generateRandomSequence(5)) 
-    for j in range(1000):
-        sequenceArr2.append(generateRandomSequence(6)) 
-    for j in range(1000):
-        sequenceArr2.append(generateRandomSequence(7)) 
-    for j in range(1000):
-        sequenceArr2.append(generateRandomSequence(8)) 
-    for j in range(1000):
-        sequenceArr2.append(generateRandomSequence(9)) 
-    for j in range(1000):
-        sequenceArr2.append(generateRandomSequence(10))
-    for j in range(1000):
-        sequenceArr2.append(generateRandomSequence(6)) 
-    random.shuffle(sequenceArr2)
-
-    resultArr = []
-    for i in range(10):
-        print("i: ", i)
-        print("1000")
-        start_time = time.time() 
-        for i in range(1000):
-            NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(sequenceArr1[i], sequenceArr2[i])
-           # PrintMatrix(Newmatrix, sequenceArr1[i], sequenceArr2[i])
-        print("start_time", start_time) #출력해보면, 시간형식이 사람이 읽기 힘든 일련번호형식입니다.
-        print("--- %s seconds ---" %(time.time() - start_time))
-        resultArr.append(NewLevenshteinDist)
-        '''
-
+    print("=="*30)   
+    print("< Needleman-Wunsch Measure >")
+    print_matrix(needleman_wunsch(seq1, seq2))
+    score1 =  needleman_wunsch(seq1, seq2) 
+    
+    output1, output2 = needleman_wunsch_align(score1 ,seq1, seq2)
+    
+    print(output1 + "\n" + output2)
+    
 
 
 
