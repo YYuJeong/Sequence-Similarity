@@ -15,8 +15,8 @@ import sys
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
-str1 = "cchup"
-str2 = "iamtf"
+str1 = "cdefkl"
+str2 = "cek"
 str1Len = len(str1)
 str2Len = len(str2)
 
@@ -101,16 +101,16 @@ def NewLevenshteinDistance(str1, str2):
                 if str1[i-1]==str2[j-1]: 
                     cost = 0
                 else:
-                    cost = ComputeDiagonalCost(matrix, i, j, str1, str2, root)
+                    cost = ComputeItemPathCost(matrix, i, j, str1, str2, root)
                 matrix[i][j] = round(min(matrix[i][j-1] + 1,        # Insert 
                                    matrix[i-1][j] + 1,        # Remove 
                                    matrix[i-1][j-1] + cost), 3)    # Replace   
     return matrix[str1Len][str2Len], matrix 
 
-def ComputeDiagonalCost(matrix, i, j, str1, str2, root):
-    print("tree start")
-    maxlength = SearchLongestPath(root)
-    '''Levenshtein
+def ComputeItemPathCost(matrix, i, j, str1, str2, root):
+
+    maxlength = SearchLongestPath(root) #LongestPath 계산
+
     if ((matrix[i-1][j] + 1) > matrix[i-1][j-1]) and ((matrix[i][j-1] + 1) > matrix[i-1][j-1]):
         str1char = findall(root, filter_=lambda node: node.name in (str1[i-1]))
         str2char = findall(root, filter_=lambda node: node.name in (str2[j-1]))
@@ -126,24 +126,6 @@ def ComputeDiagonalCost(matrix, i, j, str1, str2, root):
         cost = round(itempath/maxlength, 3)
     else:
         cost = 1
-    '''
-    print("str1: ", str1)
-    print("str2: ", str2)
-    print("matrix: ", matrix)
-    str1char = findall(root, filter_=lambda node: node.name in (str1[i-1]))
-    str2char = findall(root, filter_=lambda node: node.name in (str2[j-1]))
-    str1char = str(str1char)
-    str2char = str(str2char)
-    str1lst = str1char.split('/')
-    str2lst = str2char.split('/')
-    for l in range(min(len(str1lst), len(str2lst))):
-        if str1lst[l] != str2lst[l]:
-            cmpindex = l
-            break
-    itempath = (len(str1lst)-cmpindex)+(len(str2lst)-cmpindex)
-    cost = round(itempath/maxlength, 3)
-
-
     return cost
 
 def SearchLongestPath(root):
@@ -191,129 +173,26 @@ def PrintMatrix(matrix, str1, str2):
         print("]")
     print("")
     
+def PrintMatrixDTW(matrix, str1, str2):
+    str1Len = len(str1)
+    str2Len = len(str2)
+    for i in range(str2Len):
+        print("    ", '{:1s}'.format(str2[i]), end=" ")
+    print(" ")
+    for i in range(str1Len):
+        print(str1[i], end=" ")
+        print("[", end=" ")
+        for j in range(str2Len):
+          print('{:5s}'.format(str(matrix[i][j])), end=" ")
+        print("]")
+    print("")
+    
 def generateRandomSequence(size, chars=string.ascii_lowercase):
     return ''.join(random.choice(chars) for _ in range(size))
 
-
-
-#######################  Needleman-Wunsch #################################
-gap_penalty = -1
-match_award = 1
-mismatch_penalty = -2
-
-seq1 = "aabbcc"
-seq2 = "abc"
-
-def zeros(rows, cols):
-    retval = []
-    for x in range(rows):
-        retval.append([])
-        for y in range(cols):
-            retval[-1].append(0)
-    return retval
-
-def match_score(alpha, beta):
-    if alpha == beta:
-        print("match")
-        return match_award
-    else:
-        print("mismatch")
-        return mismatch_penalty
-
-def needleman_wunsch(seq1, seq2):
-    n = len(seq1)
-    m = len(seq2)  
-    
-    score = zeros(m+1, n+1)
-    for i in range(0, m + 1):
-        score[i][0] = gap_penalty * i
-    
-    for j in range(0, n + 1):
-        score[0][j] = gap_penalty * j
-    
-    for i in range(1, m + 1):
-        for j in range(1, n + 1):
-            match = score[i - 1][j - 1] + match_score(seq1[j-1], seq2[i-1])
-            #cost = ComputeDiagonalCost(score, i, j, seq1, seq2, root)
-            #match = score[i - 1][j - 1] + cost
-            delete = score[i - 1][j] + gap_penalty
-            insert = score[i][j - 1] + gap_penalty
-            score[i][j] = max(match, delete, insert)
-
-    PrintMatrix(score, seq2, seq1)
-    print("NW score: ", score[m][n])
-    return score
-'''
-def needleman_wunsch_align(seq1, seq2): 
-    n = len(seq1)
-    m = len(seq2) 
-    score = needleman_wunsch(seq1, seq2)
-    PrintMatrix(score, seq2, seq1 )
-    align1 = ""
-    align2 = ""
-
-    i = m
-    j = n
-
-    while i > 0 and j > 0:
-        score_current = score[i][j]
-        score_diagonal = score[i-1][j-1]
-        score_up = score[i][j-1]
-        score_left = score[i-1][j]
-
-        #if score_current == score_diagonal + match_score(seq1[j-1], seq2[i-1]):
-        cost = ComputeDiagonalCost(score, i, j, seq1, seq2, root)
-        if score_current == score_diagonal + cost:
-            align1 += seq1[j-1]
-            align2 += seq2[i-1]
-            i -= 1
-            j -= 1
-        elif score_current == score_up + gap_penalty:
-            align1 += seq1[j-1]
-            align2 += '-'
-            j -= 1
-        elif score_current == score_left + gap_penalty:
-            align1 += '-'
-            align2 += seq2[i-1]
-            i -= 1
-
-    while j > 0:
-        align1 += seq1[j-1]
-        align2 += '-'
-        j -= 1
-    while i > 0:
-        align1 += '-'
-        align2 += seq2[i-1]
-        i -= 1
-    
-    align1 = align1[::-1]
-    align2 = align2[::-1]
-    
-    return(align1, align2)
-'''    
+  
 #######################  Dynamic Time Warping #################################
-def DTW(A, B, window=sys.maxsize, d=lambda x, y: abs(x - y)):
-    A, B = np.array(A), np.array(B)
-    M, N = len(A), len(B)
-    cost = sys.maxsize * np.ones((M, N))
-    cost[0, 0] = d(A[0], B[0])
-    for i in range(1, M):
-        cost[i, 0] = cost[i - 1, 0] + d(A[i], B[0])
-    for j in range(1, N):
-        cost[0, j] = cost[0, j - 1] + d(A[0], B[j])
-    for i in range(1, M):
-        for j in range(max(1, i - window), min(N, i + window)):
-            choices = cost[i - 1, j - 1], cost[i, j - 1], cost[i - 1, j]
-            cost[i, j] = min(choices) + d(A[i], B[j])
-    n, m = N - 1, M - 1
-    path = []
-    while (m, n) != (0, 0):
-        path.append((m, n))
-        m, n = min((m - 1, n), (m, n - 1), (m - 1, n - 1), key=lambda x: cost[x[0], x[1]])
-    path.append((0, 0))
-    return cost[-1, -1], path
-
-def StringToArrary(str1, str2):
+def StringToArray(str1, str2):
     stringAll = str1 + str2
     stringAll_list = list(stringAll)
     stringAll_list = list(set(stringAll_list))
@@ -324,29 +203,89 @@ def StringToArrary(str1, str2):
     str1Num, str2Num = [], []
     for i in range(len(str1)):
         str1Num.append(stringDic[str1[i]])
-    print(str1Num)
     for i in range(len(str2)):
         str2Num.append(stringDic[str2[i]])
         
-    return
+    return  str1Num, str2Num
     
         
-def DTW_main():
-    str1 = "ABC"
-    str2 = "BCD"
+def NewDTW_main():
+    str1 = "cdefkl"
+    str2 = "cek"
+    matrix, cost = NewDTW(str1, str2, window = 6)
 
-    
-    M, N = len(str1Num), len(str2Num)
-    cost, path = DTW(A, B, window = 6)
+    PrintMatrixDTW(matrix, str1, str2)
     print('Total Distance is ', cost)
-    offset = 6
-    plt.xlim([-1, max(len(A), len(B)) + 1])
-    plt.plot(A)
-    plt.plot(B + offset)
-    for (x1, x2) in path:
-        plt.plot([x1, x2], [A[x1], B[x2] + offset])
-    plt.show()
 
+
+def NewDTW(str1, str2, window=sys.maxsize):
+    str1Num, str2Num = StringToArray(str1, str2)
+    A, B = str1Num, str2Num
+    M, N = len(A), len(B)
+    maxlength = SearchLongestPath(root) #LongestPath 계산
+
+    cost = 100 * np.ones((M, N))
+
+    cost[0, 0] =  ComputeItemPath(str1[0], str2[0], maxlength)
+    for i in range(1, M):
+        cost[i, 0] = cost[i - 1, 0] + ComputeItemPath(str1[i], str2[0], maxlength)
+    for j in range(1, N):
+        cost[0, j] = cost[0, j - 1] + ComputeItemPath(str1[0], str2[j], maxlength)
+
+    for i in range(1, M):
+        for j in range(max(1, i - window), min(N, i + window)):
+            choices = cost[i - 1, j - 1], cost[i, j - 1], cost[i - 1, j]
+            cost[i, j] = min(choices) +  ComputeItemPath(str1[i], str2[j], maxlength)
+
+    return cost, cost[-1, -1]
+
+def ComputeItemPath(item1, item2, maxlength):
+    if item1 != item2:
+        str1path = findall(root, filter_=lambda node: node.name in (item1))
+        str2path = findall(root, filter_=lambda node: node.name in (item2))
+        str1path = str(str1path)
+        str2path = str(str2path)
+        str1lst = str1path.split('/')
+        str2lst = str2path.split('/')
+        for l in range(min(len(str1lst), len(str2lst))):
+            if str1lst[l] != str2lst[l]:
+                cmpindex = l
+                break
+        itempath = (len(str1lst)-cmpindex)+(len(str2lst)-cmpindex)
+        cost = round(itempath/maxlength, 3)
+    else:
+        cost = 0
+    return cost
+
+#####################
+def DTW_main():
+    str1 = "cdefkl"
+    str2 = "cek"
+    matrix, cost = DTW(str1, str2, window = 6)
+
+    PrintMatrixDTW(matrix, str1, str2)
+    print('Total Distance is ', cost)
+
+
+def DTW(str1, str2, window=sys.maxsize, d=lambda x, y: abs(x - y)):
+    str1Num, str2Num = StringToArray(str1, str2)
+    A, B = str1Num, str2Num
+    M, N = len(A), len(B)
+
+    cost = 100 * np.ones((M, N))
+
+    cost[0, 0] =  d(str1[0], str2[0])
+    for i in range(1, M):
+        cost[i, 0] = cost[i - 1, 0] + d(str1[i], str2[0])
+    for j in range(1, N):
+        cost[0, j] = cost[0, j - 1] + d(str1[0], str2[j])
+
+    for i in range(1, M):
+        for j in range(max(1, i - window), min(N, i + window)):
+            choices = cost[i - 1, j - 1], cost[i, j - 1], cost[i - 1, j]
+            cost[i, j] = min(choices) +  d(str1[i], str2[j])
+
+    return cost, cost[-1, -1]
 
 if __name__ == '__main__':
     treeItem = ReadCSV('tree.csv')
@@ -361,13 +300,13 @@ if __name__ == '__main__':
     LevenshteinDist, matrix = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
     
-    print("< Original Distance Measure >")
+    print("< Original Levenshtein Measure >")
     PrintMatrix(matrix, str1, str2)
     print("LevenshteinDistance: ", LevenshteinDist)
     print("LevenshteinSimilarity: ", LevenshteinSim)
     print("=="*30)
     
-    print("< New Distance Measure >")
+    print("< New Levenshtein Measure >")
     NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(str1, str2)
     PrintMatrix(Newmatrix, str1, str2)
     NewLevenshteinSim = ComputeLevenshteinSimilarity(NewLevenshteinDist, str1, str2)
@@ -375,16 +314,17 @@ if __name__ == '__main__':
     print("LevenshteinSimilarity: ", NewLevenshteinSim)
     print("=="*30)
     
-    print("< Dynamic Time Warping Measure >")
+    print("< Origin Dynamic Time Warping Measure >")
     DTW_main()
-
-    print("=="*30)   
-    print("< Needleman-Wunsch Measure >")
-    needleman_wunsch(seq1, seq2)
-    #output1, output2 = needleman_wunsch_align(seq1, seq2)
-    #print("output1: "+ output1 + "\noutput2: " + output2)
+    print("=="*30)
     
+    print("< New Dynamic Time Warping Measure >")
+    NewDTW_main()
+    print("=="*30)
+    
+    print("< Needleman-Wunsch Measure >")
 
+    print("=="*30)
 
 
 
