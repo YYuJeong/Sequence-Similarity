@@ -257,7 +257,7 @@ def ComputeItemPath(item1, item2, maxlength):
         cost = 0
     return cost
 
-#####################
+################################# DTW ##########################################
 def DTW_main():
     str1 = "cdefkl"
     str2 = "cek"
@@ -274,18 +274,122 @@ def DTW(str1, str2, window=sys.maxsize, d=lambda x, y: abs(x - y)):
 
     cost = 100 * np.ones((M, N))
 
-    cost[0, 0] =  d(str1[0], str2[0])
+    cost[0, 0] =  d(A[0], B[0])
     for i in range(1, M):
-        cost[i, 0] = cost[i - 1, 0] + d(str1[i], str2[0])
+        cost[i, 0] = cost[i - 1, 0] + d(A[i], B[0])
     for j in range(1, N):
-        cost[0, j] = cost[0, j - 1] + d(str1[0], str2[j])
+        cost[0, j] = cost[0, j - 1] + d(A[0], B[j])
 
     for i in range(1, M):
         for j in range(max(1, i - window), min(N, i + window)):
             choices = cost[i - 1, j - 1], cost[i, j - 1], cost[i - 1, j]
-            cost[i, j] = min(choices) +  d(str1[i], str2[j])
+            cost[i, j] = min(choices) +  d(A[i], B[j])
 
     return cost, cost[-1, -1]
+
+######################### Needleman-Wunsch ###################################
+gap_penalty = -1
+match_award = 1
+mismatch_penalty = 0
+
+seq1 = "AAABBBCCC"
+seq2 = "A"
+
+def print_matrix(mat):
+    for i in range(0, len(mat)):
+        print("[", end = "")
+        for j in range(0, len(mat[i])):
+            print(mat[i][j], end = "")
+            if j != len(mat[i]) - 1:
+                print("\t", end = "")
+        print("]\n")
+
+
+def zeros(rows, cols):
+    retval = []
+    for x in range(rows):
+        retval.append([])
+        for y in range(cols):
+            retval[-1].append(0)
+    return retval
+
+def match_score(alpha, beta):
+    if alpha == beta:
+        return match_award
+    elif alpha == '-' or beta == '-':
+        return gap_penalty
+    else:
+        return mismatch_penalty
+
+def needleman_wunsch(seq1, seq2):
+    score = zeros(m+1, n+1)
+    
+    for i in range(0, m + 1):
+        score[i][0] = gap_penalty * i
+    for j in range(0, n + 1):
+        score[0][j] = gap_penalty * j
+    
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            match = score[i - 1][j - 1] + match_score(seq1[j-1], seq2[i-1])
+            delete = score[i - 1][j] + gap_penalty
+            insert = score[i][j - 1] + gap_penalty
+            score[i][j] = max(match, delete, insert)
+    print(np.shape(score))
+    print("NW score: ", score[m][n])
+    return score
+
+
+
+def needleman_wunsch_align(score, seq1, seq2):   
+    # Create variables to store alignment
+    align1 = ""
+    align2 = ""
+    
+    # Start from the bottom right cell in matrix
+    i = m
+    j = n
+    
+    # We'll use i and j to keep track of where we are in the matrix, just like above
+    while i > 0 and j > 0: # end touching the top or the left edge
+        score_current = score[i][j]
+        score_diagonal = score[i-1][j-1]
+        score_up = score[i][j-1]
+        score_left = score[i-1][j]
+        
+        # Check to figure out which cell the current score was calculated from,
+        # then update i and j to correspond to that cell.
+        if score_current == score_diagonal + match_score(seq1[j-1], seq2[i-1]):
+            align1 += seq1[j-1]
+            align2 += seq2[i-1]
+            i -= 1
+            j -= 1
+        elif score_current == score_up + gap_penalty:
+            align1 += seq1[j-1]
+            align2 += '-'
+            j -= 1
+        elif score_current == score_left + gap_penalty:
+            align1 += '-'
+            align2 += seq2[i-1]
+            i -= 1
+
+    # Finish tracing up to the top left cell
+    while j > 0:
+        align1 += seq1[j-1]
+        align2 += '-'
+        j -= 1
+    while i > 0:
+        align1 += '-'
+        align2 += seq2[i-1]
+        i -= 1
+    
+    # Since we traversed the score matrix from the bottom right, our two sequences will be reversed.
+    # These two lines reverse the order of the characters in each sequence.
+    align1 = align1[::-1]
+    align2 = align2[::-1]
+    
+    return(align1, align2)
+
 
 if __name__ == '__main__':
     treeItem = ReadCSV('tree.csv')
@@ -322,9 +426,28 @@ if __name__ == '__main__':
     NewDTW_main()
     print("=="*30)
     
-    print("< Needleman-Wunsch Measure >")
-
+    print("< Origin Needleman-Wunsch Measure >")
+    
+    n = len(seq1)
+    m = len(seq2)    
+    score1 = needleman_wunsch(seq1, seq2)
+    print_matrix(score1)   
+    output1, output2 = needleman_wunsch_align(score1 ,seq1, seq2)
+    
+    print(output1 + "\n" + output2)
+    
     print("=="*30)
+    print("< New Needleman-Wunsch Measure >")
+    
+    n = len(seq1)
+    m = len(seq2)  
+    score1 = needleman_wunsch(seq1, seq2)
+
+    print_matrix(score1)   
+    output1, output2 = needleman_wunsch_align(score1 ,seq1, seq2)
+    
+    print(output1 + "\n" + output2)
+    
 
 
 
