@@ -15,10 +15,6 @@ import sys
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
-str1 = "cdefkl"
-str2 = "cek"
-str1Len = len(str1)
-str2Len = len(str2)
 
 def ReadCSV(filename):
     ff = open(filename, 'r', encoding = 'utf-8')
@@ -59,6 +55,8 @@ def PrintItemHierarchyTree(root):
     print("=="*30)
 
 def LevenshteinDistance(str1, str2, str1LCen , str2Len): #Recursive
+    str1Len = len(str1)
+    str2Len = len(str2)
     if str1Len == 0: 
         return str2Len 
     if str2Len == 0: 
@@ -90,6 +88,8 @@ def editDistDP(str1, str2):  #Dynamic Programming
     return matrix[str1Len][str2Len], matrix 
 
 def NewLevenshteinDistance(str1, str2):
+    str1Len = len(str1)
+    str2Len = len(str2)
     matrix = [[0 for x in range(str2Len + 1)] for x in range(str1Len + 1)]   
     for i in range(str1Len + 1): 
         for j in range(str2Len + 1): 
@@ -105,7 +105,7 @@ def NewLevenshteinDistance(str1, str2):
                 matrix[i][j] = round(min(matrix[i][j-1] + 1,        # Insert 
                                    matrix[i-1][j] + 1,        # Remove 
                                    matrix[i-1][j-1] + cost), 3)    # Replace   
-    return matrix[str1Len][str2Len], matrix 
+    return matrix[str1Len][str2Len]
 
 def ComputeItemPathCost(matrix, i, j, str1, str2, root):
 
@@ -292,8 +292,8 @@ gap_penalty = -1
 match_award = 1
 mismatch_penalty = 0
 
-seq1 = "aaacccff"
-seq2 = "bde"
+seq1 = "aaakkkuuu"
+seq2 = "blv"
 
 def zeros(rows, cols):
     retval = []
@@ -323,7 +323,6 @@ def needleman_wunsch(seq1, seq2):
             delete = score[i - 1][j] + gap_penalty
             insert = score[i][j - 1] + gap_penalty
             score[i][j] = max(match, delete, insert)
-    print(np.shape(score))
     print("NW score: ", score[m][n])
     return score
 
@@ -380,7 +379,6 @@ def New_NW(seq1, seq2):
             delete = score[i - 1][j] + gap_penalty
             insert = score[i][j - 1] + gap_penalty
             score[i][j] = max(match, delete, insert)
-    print(np.shape(score))
     print("NW score: ", score[m][n])
     return score
 
@@ -425,6 +423,9 @@ def NEW_NW_align(score, seq1, seq2):
     return(align1, align2)
     
 if __name__ == '__main__':
+    str1 = "cdefkl"
+    str2 = "cek"
+
     treeItem = ReadCSV('tree.csv')
    # data = ReadCSV('data.csv')
     
@@ -444,8 +445,8 @@ if __name__ == '__main__':
     print("=="*30)
     
     print("< New Levenshtein Measure >")
-    NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(str1, str2)
-    PrintMatrix(Newmatrix, str1, str2)
+    NewLevenshteinDist = NewLevenshteinDistance(str1, str2)
+   # PrintMatrix(Newmatrix, str1, str2)
     NewLevenshteinSim = ComputeLevenshteinSimilarity(NewLevenshteinDist, str1, str2)
     print("LevenshteinDistance: ", NewLevenshteinDist)
     print("LevenshteinSimilarity: ", NewLevenshteinSim)
@@ -472,12 +473,20 @@ if __name__ == '__main__':
     score1 = New_NW(seq1, seq2) 
     PrintMatrix(score1, seq2, seq1)
     output1, output2 = NEW_NW_align(score1 ,seq1, seq2)
-    
     print(output1 + "\n" + output2)
     
-
-
-
+    print("< Runtime Test >")
+    randseq1, randseq2 = [],[]
+    for i in range(3, 11):
+        for j in range(125):
+            randseq1.append(generateRandomSequence(i))
+            randseq2.append(generateRandomSequence(i))
+            
+    start_time = time.time()
+    for i in range(len(randseq1)):
+         NewLevenshteinDist = NewLevenshteinDistance(randseq1[i], randseq2[i])
+    print("---%s seconds ---" %(time.time() - start_time))
+    
 
 
     
