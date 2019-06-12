@@ -423,8 +423,8 @@ def NEW_NW_align(score, seq1, seq2):
     return(align1, align2)
     
 if __name__ == '__main__':
-    str1 = "cdefkl"
-    str2 = "cek"
+    str1 = "abc"
+    str2 = "abc"
     treeItem = ReadCSV('tree.csv')
    # data = ReadCSV('data.csv')
     
@@ -477,6 +477,7 @@ if __name__ == '__main__':
     output1, output2 = NEW_NW_align(score1 ,str1, str2)
     print(output1 + "\n" + output2)
     
+    '''
     print("=="*30)
     print("< Runtime Test >")
     randseq1, randseq2 = [],[]
@@ -503,5 +504,5 @@ if __name__ == '__main__':
         score1 = New_NW(randseq1[i], randseq2[i])
     print("---NW %s seconds ---" %(time.time() - start_time))
     print("=="*30)
-
+    '''
     
