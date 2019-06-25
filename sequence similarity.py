@@ -105,6 +105,7 @@ def NewLevenshteinDistance(str1, str2):
                 matrix[i][j] = round(min(matrix[i][j-1] + 1,        # Insert 
                                    matrix[i-1][j] + 1,        # Remove 
                                    matrix[i-1][j-1] + cost), 3)    # Replace   
+    PrintMatrix(matrix, str1, str2)
     return matrix[str1Len][str2Len]
 
 def ComputeItemPathCost(matrix, i, j, item1, item2,  maxlength):   
@@ -209,8 +210,8 @@ def StringToArray(str1, str2):
 def NewDTW_main(str1, str2):
     matrix, cost = NewDTW(str1, str2, window = 6)
     
-    #PrintMatrixDTW(matrix, str1, str2)
-    #print('Total Distance is ', cost)
+    PrintMatrixDTW(matrix, str1, str2)
+    print('Total Distance is ', cost)
 
 
 def NewDTW(str1, str2, window=sys.maxsize):
@@ -303,8 +304,6 @@ def match_score(alpha, beta):
 def needleman_wunsch(seq1, seq2):
     n = len(seq1)
     m = len(seq2)
-    print("seq1: ", seq1)
-    print("seq2: ", seq2)
     score = zeros(m+1, n+1)
     for i in range(0, m + 1):
         score[i][0] = gap_penalty * i
@@ -373,13 +372,19 @@ def New_NW(seq1, seq2):
         score[0][j] = gap_penalty * j
     for i in range(1, m + 1):
         for j in range(1, n + 1):
-            match = score[i - 1][j - 1] +  ComputeItemPath(seq1[j-1], seq2[i-1], maxlength)
+            match = score[i - 1][j - 1] +   New_match_score(seq1[j-1], seq2[i-1], maxlength )
             delete = score[i - 1][j] + gap_penalty
             insert = score[i][j - 1] + gap_penalty
             score[i][j] = max(match, delete, insert)
-    #print("NW score: ", score[m][n])
+    print("NW score: ", score[m][n])
     return score
 
+def New_match_score(alpha, beta, maxlength):
+    if alpha == '-' or beta == '-':
+        return gap_penalty
+    else:
+        return (1-ComputeItemPath(alpha, beta, maxlength))
+    
 def NEW_NW_align(score, seq1, seq2):   
     n = len(seq1)
     m = len(seq2)
@@ -394,7 +399,7 @@ def NEW_NW_align(score, seq1, seq2):
         score_up = score[i][j-1]
         score_left = score[i-1][j]
         
-        if score_current == score_diagonal + ComputeItemPath(seq1[j-1], seq2[i-1], maxlength):
+        if score_current == score_diagonal + New_match_score(seq1[j-1], seq2[i-1], maxlength ):
             align1 += seq1[j-1]
             align2 += seq2[i-1]
             i -= 1
@@ -423,8 +428,8 @@ def NEW_NW_align(score, seq1, seq2):
     return(align1, align2)
     
 if __name__ == '__main__':
-    str1 = "abc"
-    str2 = "abc"
+    str1 = "akgaa"
+    str2 = " "
     treeItem = ReadCSV('tree.csv')
    # data = ReadCSV('data.csv')
     
