@@ -1,0 +1,57 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Sep 17 20:28:13 2019
+
+@author: YuJeong
+"""
+
+import csv
+from anytree import Node, RenderTree, findall, util
+import string
+import time
+import numpy as np
+import sys
+
+#root == 1
+
+######################### Taxonomy 생성 ###################################
+
+def ReadCSV(filename):
+    ff = open(filename, 'r', encoding = 'utf-8')
+    reader = csv.reader(ff)
+    headers = next(reader, None)
+    data = {}
+    for hh in headers:
+        data[hh] = []
+    for row in reader: 
+        for hh, vv in zip(headers, row):
+                data[hh].append(vv)
+    return data
+
+def GenerateItemHierarchyTree(treeItem):
+    for i in range(len(treeItem['Name'])):
+        globals()[treeItem['Name'][i]] =  Node(treeItem['Name'][i], parent = globals()[treeItem['Parent'][i]], data = treeItem['Data'][i])
+        item_hierarchy_tree.append(globals()[treeItem['Name'][i]])
+    return root
+
+def PrintItemHierarchyTree(root):
+    print("=="*30)
+    for row in RenderTree(root):
+        pre, fill, node = row
+        print(f"{pre}{node.name}, data: {node.data}")
+    print("=="*30)
+
+######################### 오일러 투어 ###################################
+
+#def EulerTour(root):
+    
+
+if __name__ == '__main__':
+    
+    treeItem = ReadCSV('eulerData.csv')
+    
+    item_hierarchy_tree = []    
+    root = Node("R", data = "All Item")
+    item_hierarchy_tree.append(root) 
+    root = GenerateItemHierarchyTree(treeItem)
+    PrintItemHierarchyTree(root)

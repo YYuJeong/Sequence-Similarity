@@ -84,7 +84,7 @@ def editDistDP(str1, str2):  #Dynamic Programming
                 matrix[i][j] = 1 + min(matrix[i][j-1],        # Insert 
                                    matrix[i-1][j],        # Remove 
                                    matrix[i-1][j-1])   # Replace  
-    return matrix[str1Len][str2Len], matrix 
+    return matrix[str1Len][str2Len] 
 
 def NewLevenshteinDistance(str1, str2):
     str1Len = len(str1)
@@ -105,7 +105,7 @@ def NewLevenshteinDistance(str1, str2):
                 matrix[i][j] = round(min(matrix[i][j-1] + 1,        # Insert 
                                    matrix[i-1][j] + 1,        # Remove 
                                    matrix[i-1][j-1] + cost), 3)    # Replace   
-    PrintMatrix(matrix, str1, str2)
+   # PrintMatrix(matrix, str1, str2)
     return matrix[str1Len][str2Len]
 
 def ComputeItemPathCost(matrix, i, j, item1, item2,  maxlength):   
@@ -210,8 +210,8 @@ def StringToArray(str1, str2):
 def NewDTW_main(str1, str2):
     matrix, cost = NewDTW(str1, str2, window = 6)
     
-    PrintMatrixDTW(matrix, str1, str2)
-    print('Total Distance is ', cost)
+  #  PrintMatrixDTW(matrix, str1, str2)
+  #  print('Total Distance is ', cost)
 
 
 def NewDTW(str1, str2, window=sys.maxsize):
@@ -259,8 +259,8 @@ def DTW_main(str1, str2):
 
     matrix, cost = DTW(str1, str2, window = 6)
 
-    PrintMatrixDTW(matrix, str1, str2)
-    print('Total Distance is ', cost)
+   # PrintMatrixDTW(matrix, str1, str2)
+   # print('Total Distance is ', cost)
 
 
 def DTW(str1, str2, window=sys.maxsize, d=lambda x, y: abs(x - y)):
@@ -315,7 +315,7 @@ def needleman_wunsch(seq1, seq2):
             delete = score[i - 1][j] + gap_penalty
             insert = score[i][j - 1] + gap_penalty
             score[i][j] = max(match, delete, insert)
-    print("NW score: ", score[m][n])
+   # print("NW score: ", score[m][n])
     return score
 
 def needleman_wunsch_align(score, seq1, seq2):   
@@ -428,8 +428,8 @@ def NEW_NW_align(score, seq1, seq2):
     return(align1, align2)
     
 if __name__ == '__main__':
-    str1 = "akgaa"
-    str2 = " "
+    str1 = "wmnp"
+    str2 = "lxoq"
     treeItem = ReadCSV('tree.csv')
    # data = ReadCSV('data.csv')
     
@@ -441,11 +441,11 @@ if __name__ == '__main__':
     
     #maxlength = SearchLongestPath(root) #LongestPath 계산
     
-    LevenshteinDist, matrix = editDistDP(str1, str2)
+    LevenshteinDist = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
     
     print("< Original Levenshtein Measure >")
-    PrintMatrix(matrix, str1, str2)
+  #  PrintMatrix(matrix, str1, str2)
     print("LevenshteinDistance: ", LevenshteinDist)
     print("LevenshteinSimilarity: ", LevenshteinSim)
     print("=="*30)
@@ -471,18 +471,17 @@ if __name__ == '__main__':
     match_award = 1
     mismatch_penalty = 0
     score1 = needleman_wunsch(str1, str2)
-    PrintMatrix(score1, str2, str1)
+  #  PrintMatrix(score1, str2, str1)
     output1, output2 = needleman_wunsch_align(score1 ,str1, str2)
-    print(output1 + "\n" + output2)   
-    print("=="*30)
+  #  print(output1 + "\n" + output2)   
+   # print("=="*30)
     
     print("< New Needleman-Wunsch Measure >")  
     score1 = New_NW(str1, str2) 
-    PrintMatrix(score1, str2, str1)
+ #   PrintMatrix(score1, str2, str1)
     output1, output2 = NEW_NW_align(score1 ,str1, str2)
-    print(output1 + "\n" + output2)
-    
-    '''
+ #   print(output1 + "\n" + output2)
+
     print("=="*30)
     print("< Runtime Test >")
     randseq1, randseq2 = [],[]
@@ -497,17 +496,18 @@ if __name__ == '__main__':
     start_time = time.time()
     for i in range(len(randseq1)):
          NewLevenshteinDist = NewLevenshteinDistance(randseq1[i], randseq2[i])
+         LevenshteinDist = editDistDP(randseq1[i], randseq2[i])
     print("---Edit %s seconds ---" %(time.time() - start_time))
     
     start_time = time.time()
     for i in range(len(randseq1)):
         NewDTW_main(randseq1[i], randseq2[i])
+        DTW_main(randseq1[i], randseq2[i])
     print("---DTW %s seconds ---" %(time.time() - start_time))
 
     start_time = time.time()
     for i in range(len(randseq1)):
         score1 = New_NW(randseq1[i], randseq2[i])
+        score1 = needleman_wunsch(randseq1[i], randseq2[i])
     print("---NW %s seconds ---" %(time.time() - start_time))
     print("=="*30)
-    '''
-    
