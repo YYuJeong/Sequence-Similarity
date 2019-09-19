@@ -14,7 +14,7 @@ import sys
 
 #root == 1
 
-######################### Taxonomy 생성 ###################################
+######################### Taxonomy 생성  ###################################
 
 def ReadCSV(filename):
     ff = open(filename, 'r', encoding = 'utf-8')
@@ -41,17 +41,49 @@ def PrintItemHierarchyTree(root):
         print(f"{pre}{node.name}, data: {node.data}")
     print("=="*30)
 
-######################### 오일러 투어 ###################################
 
-#def EulerTour(root):
+############################# 오일러 투어 생성  ###################################
+def EulerTour(treeIndex):
+    eulerTour = []
+
+    for i in eulerTour:
+        print("euler tour : ", i)
+    if treeIndex == root:
+        print("root")
+        eulerTour.append(item_hierarchy_tree[0].name)
+        childs = item_hierarchy_tree[0].children
+        childs = list(childs)
+        print("childs: ", childs[0])
+        print("typ:", type(childs[0]))
+        for i in childs:
+            print(i.name)
+            nextIndex = i.name
+            EulerTour(nextIndex)
+  #      for i in range(0, len(childs)):
+  #          print("child name:", childs)
+  #          eulerTour(childs[i].name)
+    else:
+        print("not Root", treeIndex)
+        print()
+        childs = item_hierarchy_tree[treeIndex].children
+        childs = list(childs)
+        for i in range(0, len(childs)):
+            print("child name:", childs[i].name)
+        
+    #if childs
     
+
+
 
 if __name__ == '__main__':
     
     treeItem = ReadCSV('eulerData.csv')
     
-    item_hierarchy_tree = []    
-    root = Node("R", data = "All Item")
+    item_hierarchy_tree = [] 
+
+    root = Node("1", data = "All Item")
     item_hierarchy_tree.append(root) 
     root = GenerateItemHierarchyTree(treeItem)
     PrintItemHierarchyTree(root)
+
+    EulerTour(root)
