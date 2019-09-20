@@ -1,10 +1,8 @@
 Name,Data,Parent
-2,Food,root
-3,Electronics,root
-4,Fashion,root
-5,Snack,2
-6,Meat&Breads,2
-7,Beverage,2
-8,Computer,5
-9,Camera&Photo,5
-10,Shoes,3
+1,Food,root
+2,Electronics,root
+3,Fashion,root
+4,Snack,2
+5,Meat&Breads,4
+6,d,3
+7,d,2
