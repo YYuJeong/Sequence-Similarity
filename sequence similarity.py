@@ -301,6 +301,7 @@ def zeros(rows, cols):
         retval.append([])
         for y in range(cols):
             retval[-1].append(0)
+    print("retval: ", retval)
     return retval
 
 def match_score(alpha, beta):
