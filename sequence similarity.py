@@ -12,13 +12,8 @@ import random
 from math import *
 import numpy as np
 import sys
-import matplotlib.pyplot as plt
 from collections import defaultdict
 
-str1 = "cdefkl"
-str2 = "cek"
-str1Len = len(str1)
-str2Len = len(str2)
 
 def ReadCSV(filename):
     ff = open(filename, 'r', encoding = 'utf-8')
@@ -59,6 +54,8 @@ def PrintItemHierarchyTree(root):
     print("=="*30)
 
 def LevenshteinDistance(str1, str2, str1LCen , str2Len): #Recursive
+    str1Len = len(str1)
+    str2Len = len(str2)
     if str1Len == 0: 
         return str2Len 
     if str2Len == 0: 
@@ -87,9 +84,12 @@ def editDistDP(str1, str2):  #Dynamic Programming
                 matrix[i][j] = 1 + min(matrix[i][j-1],        # Insert 
                                    matrix[i-1][j],        # Remove 
                                    matrix[i-1][j-1])   # Replace  
-    return matrix[str1Len][str2Len], matrix 
+    return matrix[str1Len][str2Len] 
 
 def NewLevenshteinDistance(str1, str2):
+    str1Len = len(str1)
+    str2Len = len(str2)
+    maxlength = SearchLongestPath(root) #LongestPath 계산
     matrix = [[0 for x in range(str2Len + 1)] for x in range(str1Len + 1)]   
     for i in range(str1Len + 1): 
         for j in range(str2Len + 1): 
@@ -101,19 +101,17 @@ def NewLevenshteinDistance(str1, str2):
                 if str1[i-1]==str2[j-1]: 
                     cost = 0
                 else:
-                    cost = ComputeItemPathCost(matrix, i, j, str1, str2, root)
+                    cost = ComputeItemPathCost(matrix,i, j, str1[i-1],str2[j-1], maxlength)
                 matrix[i][j] = round(min(matrix[i][j-1] + 1,        # Insert 
                                    matrix[i-1][j] + 1,        # Remove 
                                    matrix[i-1][j-1] + cost), 3)    # Replace   
-    return matrix[str1Len][str2Len], matrix 
+   # PrintMatrix(matrix, str1, str2)
+    return matrix[str1Len][str2Len]
 
-def ComputeItemPathCost(matrix, i, j, str1, str2, root):
-
-    maxlength = SearchLongestPath(root) #LongestPath 계산
-
+def ComputeItemPathCost(matrix, i, j, item1, item2,  maxlength):   
     if ((matrix[i-1][j] + 1) > matrix[i-1][j-1]) and ((matrix[i][j-1] + 1) > matrix[i-1][j-1]):
-        str1char = findall(root, filter_=lambda node: node.name in (str1[i-1]))
-        str2char = findall(root, filter_=lambda node: node.name in (str2[j-1]))
+        str1char = findall(root, filter_=lambda node: node.name in (item1))
+        str2char = findall(root, filter_=lambda node: node.name in (item2))
         str1char = str(str1char)
         str2char = str(str2char)
         str1lst = str1char.split('/')
@@ -209,20 +207,19 @@ def StringToArray(str1, str2):
     return  str1Num, str2Num
     
         
-def NewDTW_main():
-    str1 = "cdefkl"
-    str2 = "cek"
+def NewDTW_main(str1, str2):
     matrix, cost = NewDTW(str1, str2, window = 6)
-
-    PrintMatrixDTW(matrix, str1, str2)
-    print('Total Distance is ', cost)
+    
+  #  PrintMatrixDTW(matrix, str1, str2)
+  #  print('Total Distance is ', cost)
 
 
 def NewDTW(str1, str2, window=sys.maxsize):
+    maxlength = SearchLongestPath(root) #LongestPath 계산
     str1Num, str2Num = StringToArray(str1, str2)
     A, B = str1Num, str2Num
     M, N = len(A), len(B)
-    maxlength = SearchLongestPath(root) #LongestPath 계산
+
 
     cost = 100 * np.ones((M, N))
 
@@ -258,13 +255,12 @@ def ComputeItemPath(item1, item2, maxlength):
     return cost
 
 ############################## Origin DTW ##########################################
-def DTW_main():
-    str1 = "cdefkl"
-    str2 = "cek"
+def DTW_main(str1, str2):
+
     matrix, cost = DTW(str1, str2, window = 6)
 
-    PrintMatrixDTW(matrix, str1, str2)
-    print('Total Distance is ', cost)
+   # PrintMatrixDTW(matrix, str1, str2)
+   # print('Total Distance is ', cost)
 
 
 def DTW(str1, str2, window=sys.maxsize, d=lambda x, y: abs(x - y)):
@@ -288,12 +284,6 @@ def DTW(str1, str2, window=sys.maxsize, d=lambda x, y: abs(x - y)):
     return cost, cost[-1, -1]
 
 ######################### Origin Needleman-Wunsch ###################################
-gap_penalty = -1
-match_award = 1
-mismatch_penalty = 0
-
-seq1 = "aaacccff"
-seq2 = "bde"
 
 def zeros(rows, cols):
     retval = []
@@ -313,6 +303,8 @@ def match_score(alpha, beta):
         return mismatch_penalty
 
 def needleman_wunsch(seq1, seq2):
+    n = len(seq1)
+    m = len(seq2)
     score = zeros(m+1, n+1)
     for i in range(0, m + 1):
         score[i][0] = gap_penalty * i
@@ -324,11 +316,12 @@ def needleman_wunsch(seq1, seq2):
             delete = score[i - 1][j] + gap_penalty
             insert = score[i][j - 1] + gap_penalty
             score[i][j] = max(match, delete, insert)
-    print(np.shape(score))
-    print("NW score: ", score[m][n])
+   # print("NW score: ", score[m][n])
     return score
 
 def needleman_wunsch_align(score, seq1, seq2):   
+    n = len(seq1)
+    m = len(seq2)
     align1 = ""
     align2 = ""
     i = m
@@ -369,6 +362,9 @@ def needleman_wunsch_align(score, seq1, seq2):
 
 ######################### New Needleman-Wunsch ###################################
 def New_NW(seq1, seq2):
+    
+    n = len(seq1)
+    m = len(seq2)
     maxlength = SearchLongestPath(root) #LongestPath 계산
     score = zeros(m+1, n+1)
     for i in range(0, m + 1):
@@ -377,27 +373,34 @@ def New_NW(seq1, seq2):
         score[0][j] = gap_penalty * j
     for i in range(1, m + 1):
         for j in range(1, n + 1):
-            match = score[i - 1][j - 1] +  ComputeItemPath(seq1[j-1], seq2[i-1], maxlength)
+            match = score[i - 1][j - 1] +   New_match_score(seq1[j-1], seq2[i-1], maxlength )
             delete = score[i - 1][j] + gap_penalty
             insert = score[i][j - 1] + gap_penalty
             score[i][j] = max(match, delete, insert)
-    print(np.shape(score))
     print("NW score: ", score[m][n])
     return score
 
+def New_match_score(alpha, beta, maxlength):
+    if alpha == '-' or beta == '-':
+        return gap_penalty
+    else:
+        return (1-ComputeItemPath(alpha, beta, maxlength))
+    
 def NEW_NW_align(score, seq1, seq2):   
-    maxlength = SearchLongestPath(root)
+    n = len(seq1)
+    m = len(seq2)
     align1 = ""
     align2 = ""
     i = m
     j = n 
+    maxlength = SearchLongestPath(root) #LongestPath 계산
     while i > 0 and j > 0: 
         score_current = score[i][j]
         score_diagonal = score[i-1][j-1]
         score_up = score[i][j-1]
         score_left = score[i-1][j]
         
-        if score_current == score_diagonal + ComputeItemPath(seq1[j-1], seq2[i-1], maxlength):
+        if score_current == score_diagonal + New_match_score(seq1[j-1], seq2[i-1], maxlength ):
             align1 += seq1[j-1]
             align2 += seq2[i-1]
             i -= 1
@@ -426,6 +429,8 @@ def NEW_NW_align(score, seq1, seq2):
     return(align1, align2)
     
 if __name__ == '__main__':
+    str1 = "wmnp"
+    str2 = "lxoq"
     treeItem = ReadCSV('tree.csv')
    # data = ReadCSV('data.csv')
     
@@ -435,50 +440,75 @@ if __name__ == '__main__':
     root = GenerateItemHierarchyTree(treeItem)
     PrintItemHierarchyTree(root)
     
-    LevenshteinDist, matrix = editDistDP(str1, str2)
+    #maxlength = SearchLongestPath(root) #LongestPath 계산
+    
+    LevenshteinDist = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
     
     print("< Original Levenshtein Measure >")
-    PrintMatrix(matrix, str1, str2)
+  #  PrintMatrix(matrix, str1, str2)
     print("LevenshteinDistance: ", LevenshteinDist)
     print("LevenshteinSimilarity: ", LevenshteinSim)
     print("=="*30)
     
     print("< New Levenshtein Measure >")
-    NewLevenshteinDist, Newmatrix = NewLevenshteinDistance(str1, str2)
-    PrintMatrix(Newmatrix, str1, str2)
+    NewLevenshteinDist = NewLevenshteinDistance(str1, str2)
+   # PrintMatrix(Newmatrix, str1, str2)
     NewLevenshteinSim = ComputeLevenshteinSimilarity(NewLevenshteinDist, str1, str2)
     print("LevenshteinDistance: ", NewLevenshteinDist)
     print("LevenshteinSimilarity: ", NewLevenshteinSim)
     print("=="*30)
     
     print("< Origin Dynamic Time Warping Measure >")
-    DTW_main()
+    DTW_main(str1, str2)
     print("=="*30)
     
     print("< New Dynamic Time Warping Measure >")
-    NewDTW_main()
+    NewDTW_main(str1, str2)
     print("=="*30)
     
     print("< Origin Needleman-Wunsch Measure >")  
-    n = len(seq1)
-    m = len(seq2)    
-    score1 = needleman_wunsch(seq1, seq2)
-    PrintMatrix(score1, seq2, seq1)
-    output1, output2 = needleman_wunsch_align(score1 ,seq1, seq2)
-    print(output1 + "\n" + output2)   
-    print("=="*30)
+    gap_penalty = -1
+    match_award = 1
+    mismatch_penalty = 0
+    score1 = needleman_wunsch(str1, str2)
+  #  PrintMatrix(score1, str2, str1)
+    output1, output2 = needleman_wunsch_align(score1 ,str1, str2)
+  #  print(output1 + "\n" + output2)   
+   # print("=="*30)
     
     print("< New Needleman-Wunsch Measure >")  
-    score1 = New_NW(seq1, seq2) 
-    PrintMatrix(score1, seq2, seq1)
-    output1, output2 = NEW_NW_align(score1 ,seq1, seq2)
+    score1 = New_NW(str1, str2) 
+ #   PrintMatrix(score1, str2, str1)
+    output1, output2 = NEW_NW_align(score1 ,str1, str2)
+ #   print(output1 + "\n" + output2)
+
+    print("=="*30)
+    print("< Runtime Test >")
+    randseq1, randseq2 = [],[]
+    for i in range(3, 11):
+        for j in range(1250):
+            randseq1.append(generateRandomSequence(i))
+            randseq2.append(generateRandomSequence(i))
+    random.shuffle(randseq1)
+    random.shuffle(randseq2)   
+    print("Sequence Num : " , len(randseq1))
     
-    print(output1 + "\n" + output2)
+    start_time = time.time()
+    for i in range(len(randseq1)):
+         NewLevenshteinDist = NewLevenshteinDistance(randseq1[i], randseq2[i])
+         LevenshteinDist = editDistDP(randseq1[i], randseq2[i])
+    print("---Edit %s seconds ---" %(time.time() - start_time))
     
+    start_time = time.time()
+    for i in range(len(randseq1)):
+        NewDTW_main(randseq1[i], randseq2[i])
+        DTW_main(randseq1[i], randseq2[i])
+    print("---DTW %s seconds ---" %(time.time() - start_time))
 
-
-
-
-
-    
+    start_time = time.time()
+    for i in range(len(randseq1)):
+        score1 = New_NW(randseq1[i], randseq2[i])
+        score1 = needleman_wunsch(randseq1[i], randseq2[i])
+    print("---NW %s seconds ---" %(time.time() - start_time))
+    print("=="*30)

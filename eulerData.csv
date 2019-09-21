@@ -1,0 +1,8 @@
+Name,Data,Parent
+1,Food,root
+2,Electronics,root
+3,Fashion,root
+4,Snack,2
+5,Meat&Breads,4
+6,d,3
+7,d,2
