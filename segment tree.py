@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Sep 17 20:28:13 2019
+Created on Mon Sep 23 13:50:45 2019
 
 @author: YuJeong
 """
@@ -21,8 +21,10 @@ def ReadCSV(filename):
     reader = csv.reader(ff)
     headers = next(reader, None)
     data = {}
+
     for hh in headers:
         data[hh] = []
+        
     for row in reader: 
         for hh, vv in zip(headers, row):
                 data[hh].append(vv)
@@ -42,99 +44,67 @@ def PrintItemHierarchyTree(root):
     print("=="*30)
 
 
-############################# 오일러 투어 생성  ###################################
-'''
-def EulerTour(treeIndex):
+############################# 오일러 투어 생성  ############################
 
-    if treeIndex == root:
-        eulerTour.append(int(item_hierarchy_tree[0].name))
-        childs = list(item_hierarchy_tree[0].children)
+#def EulerTour(treeIndex):
 
-        for i in childs:
-            nextIndex = int(i.name)
-            EulerTour(nextIndex)
-        print("#"*30)
-  
-    else:
+global no2serial
+global serial2no
+global locInTrip
+global depth
+global n
+n = 13
+no2serial = [-1 for i in range(n)]
+serial2no = [-1 for i in range(n)]
 
-        print("Not ROot: " , treeIndex)
-        eulerTour.append(item_hierarchy_tree[treeIndex].name)
-        print("treeInex: 추가", item_hierarchy_tree[treeIndex].name)
+locInTrip = [-1 for i in range(n)]
+depth = [-1 for i in range(n)]
 
-        parent = int(item_hierarchy_tree[treeIndex].parent.name)
-        childs = list(item_hierarchy_tree[treeIndex].children)
-        if item_hierarchy_tree[treeIndex].is_leaf :            
-            print("지금 내 인덱스" , treeIndex, "나의 부모 노드: " , parent)
-            childNum = len(list(item_hierarchy_tree[parent].children))
-            childTemp = list(item_hierarchy_tree[parent].children)
-            childArr = []
-            for i in childTemp:
-                childArr.append(i.name)
-                
-            for i in childArr:
-                print("childARr:", i)
-        #    if treeIndex == 
-            print("차일드 넘: " , childNum)
-            print("마지막 자식 노드: ", childArr[childNum-1])
-            if treeIndex != int(childArr[childNum-1]):
-                eulerTour.append(parent) 
-                print("나는 마지막 자식노드 아님", treeIndex)
-            else: 
-                print("나는 마지막 자식 노드: " , treeIndex )
-                ancestor = list(item_hierarchy_tree[treeIndex].ancestors)
-                print("ancestor", ancestor)
-                for i in range(len(ancestor), 1, -1):
-                    eulerTour.append(int(ancestor[i-1].name))
-                if item_hierarchy_tree[parent].parent.is_root:
-                    print("내 부모의 부모가 루트다 0추가")
-                    eulerTour.append(0)
-        for i in childs:
-            nextIndex = int(i.name)
-            EulerTour(nextIndex)
-        print("#"*30)
+nextSerial = 0
+def traverse(here, d, trip):
+    global nextSerial
 
+    print("nextSerial: ", nextSerial)
+    print("here: " , here )
+    print("d: ", d)
+    print("trip size: ", len(trip) )
 
-    return eulerTour
-'''
-def EulerTour(treeIndex, fc, ind):
-
-    eulerTour.append(treeIndex)
-    print("트리 인뎃스: ", treeIndex)
-    print("eulerTour 길이: " , len(eulerTour))
-    print("오일러 투어: " , eulerTour)
-    print("DDDL:" , len(eulerTour)-1 )
-    fc[1] =  len(eulerTour)-1 
-    #print("c첫방문:" , fc)
-    for i in fc:
-        print("fc: " , i)
-    ind=ind+1
-    print("ind: ", ind)
-    childStack = []
-    childStack = list(item_hierarchy_tree[treeIndex].children)
-    if len(childStack)  != 0: 
-        for i in childStack:
-         #   print("차일드 스택: ", i.name )
-            EulerTour(int(i.name), childStack, ind )
-    else:
-        print("스택 널 추가: " , item_hierarchy_tree[treeIndex].ancestors)
-        eulerTour.append(item_hierarchy_tree[treeIndex].parent.name)
-        '''
-        ancestors = list(item_hierarchy_tree[treeIndex].ancestors)
-        ancestors.reverse()
-        for i in ancestors:
-            print("조상: " , int(i.name))
-            if len(list(item_hierarchy_tree[int(i.name)].children)) != 0:
-                eulerTour.append(item_hierarchy_tree[int(i.name)].name)  
-        print("조상: " ,ancestors)
-        '''
-        #for i a
-        #eulerTour.append(item_hierarchy_tree[treeIndex].parent.name)
+    for i in range(0, len(trip)):
+        print(trip[i], end=' ')
+    
+    print("")
+    print("*"*40)
+    
+   # global nextSerial
+    no2serial[here] = nextSerial
+    serial2no[nextSerial] = here
+    nextSerial = nextSerial + 1
+    
+    depth[here] = d
+    
+    locInTrip[here] = len(trip)
+    trip.append(no2serial[here])
+    
+    for i in range(0, len(child[here])):
+      # nextSerial = nextSerial + 1
+       # print("i: " , i)
+       # print(" len(child[here]:",  len(child[here]))
+        traverse(child[here][i], d + 1, trip )
         
-    return eulerTour , fc
+        trip.append(no2serial[here])
+    
+        
 
+def prepareRMQ():
+  #  nextSerial = 0
+    trip = []
+    traverse(0, 0 , trip)
+
+
+     
 if __name__ == '__main__':
     
-    treeItem = ReadCSV('eulerData.csv')
+    treeItem = ReadCSV('C:/Users/YuJeong/Documents/Sequence-Similarity/eulerData.csv')
     item_hierarchy_tree = [] 
 
     root = Node("0", data = "All Item")
@@ -142,14 +112,26 @@ if __name__ == '__main__':
     root = GenerateItemHierarchyTree(treeItem)
     PrintItemHierarchyTree(root)
     
-    eulerTour = []
-    par = []
-    fc = [-1] * 10
-    ind = 0
-    eulerTour = EulerTour(0, fc, ind)
+  
+    #print("후손 수:: " , len(root.descendants))
+    queries = 3 #이 트리로 몇번 계산할지
 
-    for i in eulerTour:
-        print("euler 경로: ", i)
-        
-    for i in fc :
-        print("fc: ", i)
+    n = len(root.descendants)+1 #부모 노드 수
+    parent = [0, 1, 1, 3, 3, 0, 6, 0, 8, 9, 9, 8]
+    child = []
+    for i in range(1, n+1):
+        parentTemp = []
+        for j in range(12):
+            if i-1 == parent[j]:
+                parentTemp.append(j+1)
+        child.append(parentTemp)
+    
+    prepareRMQ()
+    
+
+    
+    
+    
+    
+    
+  #  eulerTour = EulerTour(0, fc, ind)
