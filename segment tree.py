@@ -53,7 +53,9 @@ global serial2no
 global locInTrip
 global depth
 global n
-n = 13
+global rangeMin
+#n = 13
+n = 6
 no2serial = [-1 for i in range(n)]
 serial2no = [-1 for i in range(n)]
 
@@ -63,17 +65,24 @@ depth = [-1 for i in range(n)]
 nextSerial = 0
 def traverse(here, d, trip):
     global nextSerial
-
+    global no2serial
+    global serial2no
+    global locInTrip
+    global depth
+ 
+    '''
     print("nextSerial: ", nextSerial)
     print("here: " , here )
     print("d: ", d)
     print("trip size: ", len(trip) )
+
 
     for i in range(0, len(trip)):
         print(trip[i], end=' ')
     
     print("")
     print("*"*40)
+    '''
     
    # global nextSerial
     no2serial[here] = nextSerial
@@ -92,15 +101,73 @@ def traverse(here, d, trip):
         traverse(child[here][i], d + 1, trip )
         
         trip.append(no2serial[here])
+
+global count   
+count = 0
+def RMQ(array):
+    global rangeMin
+    n = len(array)
+    print("n:", n)  
+    rangeMin = []
+    rangeMin = [0 for i in range(n*4)]   
+    print("rangeMin size: ", len(rangeMin))
+    init(array, 1, 0 , n-1)
+
+def init(array, node, left, right):
+    global count
+    count = count + 1
+    print("count : " , count )
     
+    for i in range(0, len(array)):
+        print('{:3d}'.format(array[i]), end=" ")
+        if i%5 == 0:
+            print("")
+    print("")
         
+    for i in range(0, len(rangeMin)):
+        print('{:3d}'.format(rangeMin[i]), end=" ")
+        if i%10 == 0:
+              print("")
+    print("")
+    print("init node: ", node)
+    print("init left: ", left)
+    print("init right: ", right)
+    print("*"*50)
+     
+    if left == right: 
+        print("좌 우 같음")
+        rangeMin[node] = array[left]
+        print("if rangeMin[node]: ", rangeMin[node])
+        return rangeMin[node]
+    mid = int((left + right)/2)
+    print("mid: ", mid)
+    rangeMin[node] = min(init(array, node * 2, left, mid), init(array, node * 2 + 1, mid + 1, right))
+    #rangeMin[node] = min(init(array, 1 * 2, 0, 12), init(array, 1 * 2 + 1, 12 + 1, 24))
+    return rangeMin[node]
+    
 
 def prepareRMQ():
   #  nextSerial = 0
     trip = []
     traverse(0, 0 , trip)
+    return RMQ(trip)
+
+'''
+def distance(u, v):
+    lu = locInTrip[u]
+    lv = locInTrip[v]
+    if(lu > lv):
+        lu, lv = lv, lu
+    lca = serial2no[query1(lu, lv)]
+    return depth[u]+depth[v]-2*depth[lca]
 
 
+def query1(left, right):
+    return query (left, right , 1, 0 , n-1)
+
+def query(left, right, node, nodeLeft, nodeRight):
+    
+'''   
      
 if __name__ == '__main__':
     
@@ -116,18 +183,21 @@ if __name__ == '__main__':
     #print("후손 수:: " , len(root.descendants))
     queries = 3 #이 트리로 몇번 계산할지
 
-    n = len(root.descendants)+1 #부모 노드 수
-    parent = [0, 1, 1, 3, 3, 0, 6, 0, 8, 9, 9, 8]
+  #  n = len(root.descendants)+1 #부모 노드 수
+    #parent = [0, 1, 1, 3, 3, 0, 6, 0, 8, 9, 9, 8]
+    n = 6
+    parent = [ 0, 1, 1, 0 ,4]
     child = []
     for i in range(1, n+1):
         parentTemp = []
-        for j in range(12):
+        for j in range(len(parent)):
             if i-1 == parent[j]:
                 parentTemp.append(j+1)
         child.append(parentTemp)
     
     prepareRMQ()
     
+   # distance(2, 7)
 
     
     
