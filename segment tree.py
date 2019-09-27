@@ -55,7 +55,7 @@ global depth
 global n
 global rangeMin
 #n = 13
-n = 6
+n = 13
 no2serial = [-1 for i in range(n)]
 serial2no = [-1 for i in range(n)]
 
@@ -120,13 +120,13 @@ def init(array, node, left, right):
     
     for i in range(0, len(array)):
         print('{:3d}'.format(array[i]), end=" ")
-        if i%5 == 0:
+        if i%10 == 0:
             print("")
     print("")
         
     for i in range(0, len(rangeMin)):
         print('{:3d}'.format(rangeMin[i]), end=" ")
-        if i%10 == 0:
+        if i%20 == 0:
               print("")
     print("")
     print("init node: ", node)
@@ -141,10 +141,12 @@ def init(array, node, left, right):
         return rangeMin[node]
     mid = int((left + right)/2)
     print("mid: ", mid)
-    rangeMin[node] = min(init(array, node * 2, left, mid), init(array, node * 2 + 1, mid + 1, right))
+    rangeMin[node] = min(init(array, node * 2 + 1, mid + 1, right), init(array, node * 2, left, mid))
     #rangeMin[node] = min(init(array, 1 * 2, 0, 12), init(array, 1 * 2 + 1, 12 + 1, 24))
+    print("min rangeMin[node]: " , rangeMin[node])
     return rangeMin[node]
-    
+
+
 
 def prepareRMQ():
   #  nextSerial = 0
@@ -184,9 +186,9 @@ if __name__ == '__main__':
     queries = 3 #이 트리로 몇번 계산할지
 
   #  n = len(root.descendants)+1 #부모 노드 수
-    #parent = [0, 1, 1, 3, 3, 0, 6, 0, 8, 9, 9, 8]
-    n = 6
-    parent = [ 0, 1, 1, 0 ,4]
+    parent = [0, 1, 1, 3, 3, 0, 6, 0, 8, 9, 9, 8]
+    n = 13
+    #parent = [ 0, 1, 1, 0 ,4]
     child = []
     for i in range(1, n+1):
         parentTemp = []
@@ -197,7 +199,7 @@ if __name__ == '__main__':
     
     prepareRMQ()
     
-   # distance(2, 7)
+    distance(2, 7)
 
     
     
