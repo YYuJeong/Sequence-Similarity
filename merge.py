@@ -14,7 +14,6 @@ Created on Mon Sep 23 13:50:45 2019
 
 import csv
 from anytree import Node, RenderTree, findall, util, find
-import string
 import time
 import numpy as np
 import sys
@@ -41,6 +40,7 @@ def ReadCSV(filename):
 
 def GenerateItemHierarchyTree(treeItem):
     
+    #for i in range(len(treeItem['Name'])):
     for i in range(len(treeItem['Name'])):
         globals()[treeItem['Name'][i]] =  Node(treeItem['Name'][i], parent = globals()[treeItem['Parent'][i]], data = treeItem['Data'][i])
         item_hierarchy_tree.append(globals()[treeItem['Name'][i]])
@@ -63,7 +63,6 @@ def rootToZero(treeItem):
     return parent
 ################################################################# 오일러 투어 생성 ####################################################
 
-'''
 global no2serial
 global serial2no
 global locInTrip
@@ -71,9 +70,9 @@ global depth
 global k
 global rangeMin
 global root
-'''
 
-k =  35
+
+k =  10001
 no2serial = [-1 for i in range(k)]
 serial2no = [-1 for i in range(k)]
 
@@ -81,6 +80,7 @@ locInTrip = [-1 for i in range(k)]
 depth = [-1 for i in range(k)]
 
 nextSerial = 0
+
 def traverse(here, d, trip):
     global nextSerial
     global no2serial
@@ -149,6 +149,41 @@ def query(left, right, node, nodeLeft, nodeRight):
         return rangeMin[node]
     mid = int((nodeLeft + nodeRight)/2)
     return min(query(left, right, node * 2 + 1, (mid+1), nodeRight), query(left, right, node * 2, nodeLeft, mid))
+
+
+
+def NewComputeItemPath(item1, item2, maxlength):
+    #start_time = time.time()
+    if item1 != item2:
+        itempath = distance(item1, item2)
+        cost = round(itempath/maxlength, 3)
+    else:
+        cost = 0
+    #print("---New %s seconds ---" %(time.time() - start_time))
+    return cost
+    
+
+
+def SegDTW(str1, str2, window=sys.maxsize):
+    maxlength = SearchLongestPath(root) #LongestPath 계산
+#   str1Num, str2Num = StringToArray(str1, str2)
+    A, B = str1, str2
+    M, N = len(A), len(B)
+
+    cost = sys.maxsize* np.ones((M, N))
+
+    cost[0, 0] =  NewComputeItemPath(str1[0], str2[0], maxlength)
+    for i in range(1, M):
+        cost[i, 0] = cost[i - 1, 0] + NewComputeItemPath(str1[i], str2[0], maxlength)
+    for j in range(1, N):
+        cost[0, j] = cost[0, j - 1] + NewComputeItemPath(str1[0], str2[j], maxlength)
+
+    for i in range(1, M):
+        for j in range(max(1, i - window), min(N, i + window)):
+            choices = cost[i - 1, j - 1], cost[i, j - 1], cost[i - 1, j]
+            cost[i, j] = min(choices) +  NewComputeItemPath(str1[i], str2[j], maxlength)
+
+    return cost, cost[-1, -1]
     
 ##################################################### DTW  ####################################################
 def PrintMatrixDTW(matrix, str1, str2):
@@ -211,6 +246,7 @@ def ExtractItemPath(item1, item2, maxlength):
     return item1parents, item2parents
 
 def ComputeItemPath(item1, item2, maxlength):
+    #start_time = time.time()
     cmpindex = 0
     if item1 != item2:
         item1parents, item2parents = ExtractItemPath(item1, item2, maxlength)
@@ -224,17 +260,32 @@ def ComputeItemPath(item1, item2, maxlength):
         cost = round(itempath/maxlength, 3)
     else:
         cost = 0
+    #print("---Old %s seconds ---" %(time.time() - start_time))
     return cost
-  
-        
-def NewDTW_main(str1, str2):
-    matrix, cost = NewDTW(str1, str2, window = 6)
+
+
+def DTW_main(str1, str2):
+
+    start_time1 = time.time()
+    matrix, cost = OriginDTW(str1, str2, window = 6)
+    end_time1 = time.time()
+  #  print("---Old %s seconds ---" %(end_time1 - start_time1))
+  #  print('Total Origin Distance is ', cost)
+
     
-    PrintMatrixDTW(matrix, str1, str2)
-    print('Total Distance is ', cost)
+    start_time2 = time.time()    
+    matrix, cost = SegDTW(str1, str2, window = 6)
+    end_time2 = time.time()
+  #  print("---NeW %s seconds ---" %(end_time2 - start_time2))
+    #PrintMatrixDTW(matrix, str1, str2)
+  #  print('Total New Distance is ', cost)
+    
+    oldTime = round(end_time1 - start_time1, 4)
+    newTime = round(end_time2 - start_time2, 4)
+    return oldTime, newTime
 
 
-def NewDTW(str1, str2, window=sys.maxsize):
+def OriginDTW(str1, str2, window=sys.maxsize):
     maxlength = SearchLongestPath(root) #LongestPath 계산
 #   str1Num, str2Num = StringToArray(str1, str2)
     A, B = str1, str2
@@ -255,9 +306,14 @@ def NewDTW(str1, str2, window=sys.maxsize):
 
     return cost, cost[-1, -1]
 
-    
+def generateRandomSequence(n):
+    randnum = []
+    for i in range(n):
+        randnum.append(random.randrange(0, 10001))
+    return randnum
+
 if __name__ == '__main__':
-    
+
     treeItem = ReadCSV('C:/Users/YuJeong/Documents/Sequence-Similarity/eulerData.csv')
     item_hierarchy_tree = [] 
 
@@ -266,9 +322,9 @@ if __name__ == '__main__':
 
     root = GenerateItemHierarchyTree(treeItem)
 
-    PrintItemHierarchyTree(root)
+   # PrintItemHierarchyTree(root)
     
-  
+
     queries = 3 #이 트리로 몇번 계산할지
     global n
     n = len(root.descendants)+1 #부모 노드 수
@@ -283,18 +339,32 @@ if __name__ == '__main__':
         child.append(parentTemp)
     
     prepareRMQ()
-    print(distance(3, 1))
-
-    randnum1 = []
-    randnum2 = []
-
-    for i in range(10):
-        randnum1.append(random.randrange(0, 35))
-        randnum2.append(random.randrange(0, 35))
     
+    randseq1, randseq2 = [],[]
+    for mm in range(3, 8):
+        for i in range(20):
+            randseq1.append(generateRandomSequence(mm))
+            randseq2.append(generateRandomSequence(mm))
+    random.shuffle(randseq1)
+    random.shuffle(randseq2)   
     
+    leavess = []
+    for i in range(1, 10001):
+        if (find(root, lambda node: node.name == str(i)).is_leaf) == True:
+            leavess.append(i)        
+        
+        
+    '''
+    print("< Runtime Test >")
+    originTime = []
+    segTime = []
+    for i in range(len(randseq1)):
+        print(i)
+        oldTime, newTime = DTW_main(randseq1[i], randseq2[i])
+        originTime.append(oldTime)
+        segTime.append(newTime)
+    '''
 
-    
-    print("< New Dynamic Time Warping Measure >")
-    NewDTW_main(randnum1, randnum2)
-    print("=="*30)
+
+
+
