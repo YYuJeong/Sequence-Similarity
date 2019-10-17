@@ -72,7 +72,7 @@ global rangeMin
 global root
 
 
-k =  10001
+k =  15001
 no2serial = [-1 for i in range(k)]
 serial2no = [-1 for i in range(k)]
 
@@ -163,20 +163,19 @@ def ExtractChild(parent):
 ##################################################### DTW  ####################################################
 
 def NewComputeItemPath(item1, item2, maxlength):
-    #start_time = time.time()
+   # start_time = time.time()
     if item1 != item2:
         itempath = distance(item1, item2)
         cost = round(itempath/maxlength, 3)
     else:
         cost = 0
-    #print("---New %s seconds ---" %(time.time() - start_time))
+   # print("---New %s seconds ---" %(time.time() - start_time))
     return cost
     
 
 
-def SegDTW(str1, str2, window=sys.maxsize):
-    maxlength = SearchLongestPath(root) #LongestPath 계산
-#   str1Num, str2Num = StringToArray(str1, str2)
+def SegDTW(str1, str2, maxlength, window=sys.maxsize):
+
     A, B = str1, str2
     M, N = len(A), len(B)
 
@@ -233,8 +232,6 @@ def SearchLongestPath(root):
     maxlength = pathLen[0] + pathLen[1]
     return maxlength
 
-
-
   
 ####################### New Dynamic Time Warping #################################
 def ExtractItemPath(item1, item2, maxlength):
@@ -256,7 +253,7 @@ def ExtractItemPath(item1, item2, maxlength):
     return item1parents, item2parents
 
 def ComputeItemPath(item1, item2, maxlength):
-    #start_time = time.time()
+  #  start_time = time.time()
     cmpindex = 0
     if item1 != item2:
         item1parents, item2parents = ExtractItemPath(item1, item2, maxlength)
@@ -270,34 +267,40 @@ def ComputeItemPath(item1, item2, maxlength):
         cost = round(itempath/maxlength, 3)
     else:
         cost = 0
-    #print("---Old %s seconds ---" %(time.time() - start_time))
+  #  print("---Old %s seconds ---" %(time.time() - start_time))
     return cost
 
 
-def DTW_main(str1, str2):
-
+def DTW_main(str1, str2, root):
+    maxlength = SearchLongestPath(root) #LongestPath 계산
     start_time1 = time.time()
-    matrix, cost = OriginDTW(str1, str2, window = 6)
+    matrix, cost = OriginDTW(str1, str2,maxlength, window = sys.maxsize )
     end_time1 = time.time()
-  #  print("---Old %s seconds ---" %(end_time1 - start_time1))
-  #  print('Total Origin Distance is ', cost)
 
-    
     start_time2 = time.time()    
-    matrix, cost = SegDTW(str1, str2, window = 6)
+    matrix, cost = SegDTW(str1, str2,maxlength, window  = sys.maxsize)
     end_time2 = time.time()
-  #  print("---NeW %s seconds ---" %(end_time2 - start_time2))
-    #PrintMatrixDTW(matrix, str1, str2)
-  #  print('Total New Distance is ', cost)
+    
+    oldTime = round(end_time1 - start_time1, 4)
+    newTime = round(end_time2 - start_time2, 4)
+    return oldTime, newTime
+
+def DTW1_main(str1, str2, root):
+    maxlength = SearchLongestPath(root) #LongestPath 계산
+    start_time1 = time.time()
+    matrix, cost = OriginDTW(str1, str2,maxlength, window = 6 )
+    end_time1 = time.time()
+
+    start_time2 = time.time()    
+    matrix, cost = SegDTW(str1, str2,maxlength, window  = 6)
+    end_time2 = time.time()
     
     oldTime = round(end_time1 - start_time1, 4)
     newTime = round(end_time2 - start_time2, 4)
     return oldTime, newTime
 
 
-def OriginDTW(str1, str2, window=sys.maxsize):
-    maxlength = SearchLongestPath(root) #LongestPath 계산
-#   str1Num, str2Num = StringToArray(str1, str2)
+def OriginDTW(str1, str2,maxlength, window=sys.maxsize):
     A, B = str1, str2
     M, N = len(A), len(B)
 
@@ -323,7 +326,7 @@ def ExtractLeaf(parent):
     notleaf = parent
     notleaf.sort()
     notleaf = list(set(notleaf))
-    leavess = [-1 for i in range(10001)]
+    leavess = [-1 for i in range(k)]
     for i in range(len(notleaf)):
         leavess[notleaf[i]] = 0
     leaf = []
@@ -340,9 +343,10 @@ def generateRandomList(n, leaf):
 
 def generateRandomSequence():
     leaf = ExtractLeaf(parent)
+    print("leaf num: ", len(leaf))
     randseq1, randseq2 = [],[]
-    for mm in range(10, 20):
-        for i in range(2):
+    for mm in range(15, 25):
+        for i in range(10):
             randseq1.append(generateRandomList(mm, leaf))
             randseq2.append(generateRandomList(mm, leaf))      
     random.shuffle(randseq1)
@@ -352,13 +356,14 @@ def generateRandomSequence():
 
 if __name__ == '__main__':
 
-    treeItem = ReadCSV('C:/Users/YuJeong/Documents/Sequence-Similarity/eulerData.csv')
+   #treeItem = ReadCSV('eulerData.csv')
     item_hierarchy_tree = [] 
 
     root = Node("0", data = "All Item")
     item_hierarchy_tree.append(root) 
 
     root = GenerateItemHierarchyTree(treeItem)
+    print("root height: " , root.height)
 
    # PrintItemHierarchyTree(root)
     
@@ -368,24 +373,24 @@ if __name__ == '__main__':
     n = len(root.descendants)+1 #부모 노드 수
     parent = rootToZero(treeItem)
     
-    child = ExtractChild(parent)
-    prepareRMQ()
+  #  child = ExtractChild(parent)
+  #  prepareRMQ()
 
             
     randseq1, randseq2 = generateRandomSequence()
   
-        
+       
     print("< Runtime Test >")
+
     originTime = []
     segTime = []
     for i in range(len(randseq1)):
         print(i)
-        oldTime, newTime = DTW_main(randseq1[i], randseq2[i])
+        oldTime, newTime = DTW_main(randseq1[i], randseq2[i], root)
         originTime.append(oldTime)
         segTime.append(newTime)
     
     print("origin Time: ", statistics.median(originTime))
     print("Segment Time: ", statistics.median(segTime))
-
 
 
