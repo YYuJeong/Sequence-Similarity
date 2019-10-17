@@ -523,4 +523,5 @@ if __name__ == '__main__':
         score1 = needleman_wunsch(randseq1[i], randseq2[i])
     print("---NW %s seconds ---" %(time.time() - start_time))
     print("=="*30)
+    ddd
     '''
