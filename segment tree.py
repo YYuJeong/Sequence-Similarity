@@ -55,7 +55,7 @@ global depth
 global k
 global rangeMin
 #n = 13
-k = 13
+k = 10001
 no2serial = [-1 for i in range(k)]
 serial2no = [-1 for i in range(k)]
 
@@ -182,12 +182,14 @@ def query(left, right, node, nodeLeft, nodeRight):
     global count
     print("*"*50)
     count = count + 1
+    '''
     print("count : " , count )
     print("init node: ", node)
     print("init left: ", left)
     print("init right: ", right)
     print("nodeLeft : ", nodeLeft)
     print("nodeRight: " , nodeRight)
+    '''
     if (right < nodeLeft) or (nodeRight < left):
         print("max int : ")
         return sys.maxsize
@@ -198,7 +200,15 @@ def query(left, right, node, nodeLeft, nodeRight):
     print("mid: " , mid)
     return min(query(left, right, node * 2 + 1, (mid+1), nodeRight), query(left, right, node * 2, nodeLeft, mid))
     
-  
+
+def rootToZero(treeItem):
+    parent = []
+    for i in range(len(treeItem['Parent'])):
+        if treeItem['Parent'][i] == 'root':
+            parent.append(0)
+        else:
+            parent.append(int(treeItem['Parent'][i]))
+    return parent  
      
 if __name__ == '__main__':
     
@@ -208,15 +218,15 @@ if __name__ == '__main__':
     root = Node("0", data = "All Item")
     item_hierarchy_tree.append(root) 
     root = GenerateItemHierarchyTree(treeItem)
-    PrintItemHierarchyTree(root)
+  #  PrintItemHierarchyTree(root)
     
   
     #print("후손 수:: " , len(root.descendants))
     queries = 3 #이 트리로 몇번 계산할지
 
-  #  n = len(root.descendants)+1 #부모 노드 수
-    parent = [0, 1, 1, 3, 3, 0, 6, 0, 8, 9, 9, 8]
-    n = 13
+    n = len(root.descendants)+1 #부모 노드 수
+    parent = rootToZero(treeItem)
+    #n = 13
     #parent = [ 0, 1, 1, 0 ,4]
     child = []
     for i in range(1, n+1):
@@ -228,7 +238,7 @@ if __name__ == '__main__':
     
     prepareRMQ()
     
-    print(distance(10, 4))
+    print(distance(9523, 9459))
 
     
     
