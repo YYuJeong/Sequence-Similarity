@@ -17,7 +17,7 @@ from anytree import Node, RenderTree, findall, util, find
 import time
 import numpy as np
 import sys
-
+import statistics
 import random
 
 #root == 1
@@ -150,7 +150,17 @@ def query(left, right, node, nodeLeft, nodeRight):
     mid = int((nodeLeft + nodeRight)/2)
     return min(query(left, right, node * 2 + 1, (mid+1), nodeRight), query(left, right, node * 2, nodeLeft, mid))
 
+def ExtractChild(parent):
+    child = []
+    for i in range(1, n+1):
+        parentTemp = []
+        for j in range(len(parent)):
+            if i-1 == parent[j]:
+                parentTemp.append(j+1)
+        child.append(parentTemp)
+    return child
 
+##################################################### DTW  ####################################################
 
 def NewComputeItemPath(item1, item2, maxlength):
     #start_time = time.time()
@@ -185,7 +195,7 @@ def SegDTW(str1, str2, window=sys.maxsize):
 
     return cost, cost[-1, -1]
     
-##################################################### DTW  ####################################################
+
 def PrintMatrixDTW(matrix, str1, str2):
     str1Len = len(str1)
     str2Len = len(str2)
@@ -306,11 +316,39 @@ def OriginDTW(str1, str2, window=sys.maxsize):
 
     return cost, cost[-1, -1]
 
-def generateRandomSequence(n):
+
+####################### Generate Randeom Sequence #################################
+    
+def ExtractLeaf(parent):
+    notleaf = parent
+    notleaf.sort()
+    notleaf = list(set(notleaf))
+    leavess = [-1 for i in range(10001)]
+    for i in range(len(notleaf)):
+        leavess[notleaf[i]] = 0
+    leaf = []
+    for i in range(len(leavess)):
+        if leavess[i] == -1:
+            leaf.append(i)
+    return leaf
+
+def generateRandomList(n, leaf):
     randnum = []
     for i in range(n):
-        randnum.append(random.randrange(0, 10001))
+        randnum.append(random.choice(leaf))
     return randnum
+
+def generateRandomSequence():
+    leaf = ExtractLeaf(parent)
+    randseq1, randseq2 = [],[]
+    for mm in range(10, 20):
+        for i in range(2):
+            randseq1.append(generateRandomList(mm, leaf))
+            randseq2.append(generateRandomList(mm, leaf))      
+    random.shuffle(randseq1)
+    random.shuffle(randseq2)
+    return randseq1, randseq2
+
 
 if __name__ == '__main__':
 
@@ -330,31 +368,13 @@ if __name__ == '__main__':
     n = len(root.descendants)+1 #부모 노드 수
     parent = rootToZero(treeItem)
     
-    child = []
-    for i in range(1, n+1):
-        parentTemp = []
-        for j in range(len(parent)):
-            if i-1 == parent[j]:
-                parentTemp.append(j+1)
-        child.append(parentTemp)
-    
+    child = ExtractChild(parent)
     prepareRMQ()
-    
-    randseq1, randseq2 = [],[]
-    for mm in range(3, 8):
-        for i in range(20):
-            randseq1.append(generateRandomSequence(mm))
-            randseq2.append(generateRandomSequence(mm))
-    random.shuffle(randseq1)
-    random.shuffle(randseq2)   
-    
-    leavess = []
-    for i in range(1, 10001):
-        if (find(root, lambda node: node.name == str(i)).is_leaf) == True:
-            leavess.append(i)        
+
+            
+    randseq1, randseq2 = generateRandomSequence()
+  
         
-        
-    '''
     print("< Runtime Test >")
     originTime = []
     segTime = []
@@ -363,8 +383,9 @@ if __name__ == '__main__':
         oldTime, newTime = DTW_main(randseq1[i], randseq2[i])
         originTime.append(oldTime)
         segTime.append(newTime)
-    '''
-
+    
+    print("origin Time: ", statistics.median(originTime))
+    print("Segment Time: ", statistics.median(segTime))
 
 
 
