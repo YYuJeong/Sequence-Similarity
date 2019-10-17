@@ -210,8 +210,8 @@ def StringToArray(str1, str2):
 def NewDTW_main(str1, str2):
     matrix, cost = NewDTW(str1, str2, window = 6)
     
-  #  PrintMatrixDTW(matrix, str1, str2)
-  #  print('Total Distance is ', cost)
+    PrintMatrixDTW(matrix, str1, str2)
+    print('Total Distance is ', cost)
 
 
 def NewDTW(str1, str2, window=sys.maxsize):
@@ -259,27 +259,38 @@ def DTW_main(str1, str2):
 
     matrix, cost = DTW(str1, str2, window = 6)
 
-   # PrintMatrixDTW(matrix, str1, str2)
-   # print('Total Distance is ', cost)
+    PrintMatrixDTW(matrix, str1, str2)
+    print('Total Distance is ', cost)
 
-
+def samecheck(x, y):
+    if x == y:
+        return 0
+    else:
+        return 1
+    
 def DTW(str1, str2, window=sys.maxsize, d=lambda x, y: abs(x - y)):
     str1Num, str2Num = StringToArray(str1, str2)
     A, B = str1Num, str2Num
     M, N = len(A), len(B)
-
+        
     cost = 100 * np.ones((M, N))
 
-    cost[0, 0] =  d(A[0], B[0])
+    #cost[0, 0] =  d(A[0], B[0])
+    cost[0, 0] =  samecheck(A[0], B[0])
     for i in range(1, M):
-        cost[i, 0] = cost[i - 1, 0] + d(A[i], B[0])
+        cost[i, 0] = cost[i - 1, 0] + samecheck(A[i], B[0])
+        #cost[i, 0] = cost[i - 1, 0] + d(A[i], B[0])
     for j in range(1, N):
-        cost[0, j] = cost[0, j - 1] + d(A[0], B[j])
+        cost[0, j] = cost[0, j - 1] + samecheck(A[0], B[j])
+        #cost[0, j] = cost[0, j - 1] + d(A[0], B[j])
 
     for i in range(1, M):
         for j in range(max(1, i - window), min(N, i + window)):
             choices = cost[i - 1, j - 1], cost[i, j - 1], cost[i - 1, j]
-            cost[i, j] = min(choices) +  d(A[i], B[j])
+           # cost[i, j] = min(choices) +  d(A[i], B[j])
+            cost[i, j] = min(choices) +  samecheck(A[i], B[j])
+           
+           
 
     return cost, cost[-1, -1]
 
@@ -291,7 +302,6 @@ def zeros(rows, cols):
         retval.append([])
         for y in range(cols):
             retval[-1].append(0)
-    print("retval: ", retval)
     return retval
 
 def match_score(alpha, beta):
@@ -484,6 +494,7 @@ if __name__ == '__main__':
  #   print(output1 + "\n" + output2)
 
     print("=="*30)
+    '''
     print("< Runtime Test >")
     randseq1, randseq2 = [],[]
     for i in range(3, 11):
@@ -512,3 +523,4 @@ if __name__ == '__main__':
         score1 = needleman_wunsch(randseq1[i], randseq2[i])
     print("---NW %s seconds ---" %(time.time() - start_time))
     print("=="*30)
+    '''
