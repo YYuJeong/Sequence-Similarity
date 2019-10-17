@@ -96,29 +96,26 @@ def EulerTour(treeIndex):
 
     return eulerTour
 '''
-def EulerTour(treeIndex, fc, ind):
+def EulerTour(treeIndex):
 
     eulerTour.append(treeIndex)
     print("트리 인뎃스: ", treeIndex)
     print("eulerTour 길이: " , len(eulerTour))
     print("오일러 투어: " , eulerTour)
     print("DDDL:" , len(eulerTour)-1 )
-    fc[1] =  len(eulerTour)-1 
+
     #print("c첫방문:" , fc)
-    for i in fc:
-        print("fc: " , i)
-    ind=ind+1
-    print("ind: ", ind)
+
     childStack = []
     childStack = list(item_hierarchy_tree[treeIndex].children)
     if len(childStack)  != 0: 
         for i in childStack:
          #   print("차일드 스택: ", i.name )
-            EulerTour(int(i.name), childStack, ind )
+            EulerTour(int(i.name))
     else:
         print("스택 널 추가: " , item_hierarchy_tree[treeIndex].ancestors)
-        eulerTour.append(item_hierarchy_tree[treeIndex].parent.name)
-        '''
+        #eulerTour.append(item_hierarchy_tree[treeIndex].parent.name)
+
         ancestors = list(item_hierarchy_tree[treeIndex].ancestors)
         ancestors.reverse()
         for i in ancestors:
@@ -126,11 +123,11 @@ def EulerTour(treeIndex, fc, ind):
             if len(list(item_hierarchy_tree[int(i.name)].children)) != 0:
                 eulerTour.append(item_hierarchy_tree[int(i.name)].name)  
         print("조상: " ,ancestors)
-        '''
+
         #for i a
         #eulerTour.append(item_hierarchy_tree[treeIndex].parent.name)
         
-    return eulerTour , fc
+    return eulerTour 
 
 if __name__ == '__main__':
     
@@ -146,10 +143,7 @@ if __name__ == '__main__':
     par = []
     fc = [-1] * 10
     ind = 0
-    eulerTour = EulerTour(0, fc, ind)
+    eulerTour = EulerTour(0)
 
     for i in eulerTour:
         print("euler 경로: ", i)
-        
-    for i in fc :
-        print("fc: ", i)
