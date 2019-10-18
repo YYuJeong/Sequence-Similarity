@@ -72,7 +72,7 @@ global rangeMin
 global root
 
 
-k =  15001
+k =  13988
 no2serial = [-1 for i in range(k)]
 serial2no = [-1 for i in range(k)]
 
@@ -356,9 +356,9 @@ def generateRandomSequence():
 
 if __name__ == '__main__':
 
-   #treeItem = ReadCSV('eulerData.csv')
+    treeItem = ReadCSV('Experiment Data/height_14.csv')
     item_hierarchy_tree = [] 
-
+    global root
     root = Node("0", data = "All Item")
     item_hierarchy_tree.append(root) 
 
@@ -367,14 +367,14 @@ if __name__ == '__main__':
 
    # PrintItemHierarchyTree(root)
     
-
+    
     queries = 3 #이 트리로 몇번 계산할지
     global n
     n = len(root.descendants)+1 #부모 노드 수
     parent = rootToZero(treeItem)
     
-  #  child = ExtractChild(parent)
-  #  prepareRMQ()
+    child = ExtractChild(parent)
+    prepareRMQ()
 
             
     randseq1, randseq2 = generateRandomSequence()
