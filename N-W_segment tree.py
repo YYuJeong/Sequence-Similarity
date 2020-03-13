@@ -72,7 +72,7 @@ global rangeMin
 global root
 
 
-k =  15001 #마지막 열 + 1
+k = 20921 #마지막 열 + 1
 no2serial = [-1 for i in range(k)]
 serial2no = [-1 for i in range(k)]
 
@@ -160,7 +160,7 @@ def ExtractChild(parent):
         child.append(parentTemp)
     return child
 
-##################################################### DTW  ####################################################
+##################################################### N-W ####################################################
 
 def NewComputeItemPath(item1, item2, maxlength):
    # start_time = time.time()
@@ -337,7 +337,7 @@ def generateRandomSequence():
     leaf = ExtractLeaf(parent)
     print("leaf num: ", len(leaf))
     randseq1, randseq2 = [],[]
-    for mm in range(3, 8):
+    for mm in range(15, 25):
         for i in range(10):
             randseq1.append(generateRandomList(mm, leaf))
             randseq2.append(generateRandomList(mm, leaf))      
@@ -348,7 +348,10 @@ def generateRandomSequence():
 
 if __name__ == '__main__':
 
-    treeItem = ReadCSV('eulerData.csv')
+    
+    
+    treeItem = ReadCSV('Experiment Data/item_15,000.csv')
+
     item_hierarchy_tree = [] 
     global root
     root = Node("0", data = "All Item")

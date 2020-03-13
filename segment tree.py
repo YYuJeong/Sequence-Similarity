@@ -44,7 +44,7 @@ def PrintItemHierarchyTree(root):
     print("=="*30)
 
 
-<<<<<<< HEAD
+
 ############################# 오일러 투어 생성  ###################################
 '''
 def EulerTour(treeIndex):
@@ -131,7 +131,7 @@ def EulerTour(treeIndex):
         #eulerTour.append(item_hierarchy_tree[treeIndex].parent.name)
         
     return eulerTour 
-=======
+
 ############################# 오일러 투어 생성  ############################
 
 #def EulerTour(treeIndex):
@@ -288,7 +288,7 @@ def query(left, right, node, nodeLeft, nodeRight):
     print("mid: " , mid)
     return min(query(left, right, node * 2 + 1, (mid+1), nodeRight), query(left, right, node * 2, nodeLeft, mid))
     
->>>>>>> ae066a66095e76b4790b7a738022f479d1267f2e
+
 
 def rootToZero(treeItem):
     parent = []
@@ -327,7 +327,7 @@ if __name__ == '__main__':
     
     prepareRMQ()
     
-<<<<<<< HEAD
+
     eulerTour = []
     par = []
     fc = [-1] * 10
@@ -336,7 +336,7 @@ if __name__ == '__main__':
 
     for i in eulerTour:
         print("euler 경로: ", i)
-=======
+
     print(distance(9523, 9459))
 
     

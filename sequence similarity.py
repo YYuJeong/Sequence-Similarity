@@ -439,8 +439,8 @@ def NEW_NW_align(score, seq1, seq2):
     return(align1, align2)
     
 if __name__ == '__main__':
-    str1 = "wmnp"
-    str2 = "lxoq"
+    str1 = "aknu"
+    str2 = "prsahdc"
     treeItem = ReadCSV('tree.csv')
    # data = ReadCSV('data.csv')
     
@@ -454,7 +454,7 @@ if __name__ == '__main__':
     
     LevenshteinDist = editDistDP(str1, str2)
     LevenshteinSim = ComputeLevenshteinSimilarity(LevenshteinDist, str1, str2)
-    
+    '''
     print("< Original Levenshtein Measure >")
   #  PrintMatrix(matrix, str1, str2)
     print("LevenshteinDistance: ", LevenshteinDist)
@@ -468,7 +468,7 @@ if __name__ == '__main__':
     print("LevenshteinDistance: ", NewLevenshteinDist)
     print("LevenshteinSimilarity: ", NewLevenshteinSim)
     print("=="*30)
-    
+    '''
     print("< Origin Dynamic Time Warping Measure >")
     DTW_main(str1, str2)
     print("=="*30)
